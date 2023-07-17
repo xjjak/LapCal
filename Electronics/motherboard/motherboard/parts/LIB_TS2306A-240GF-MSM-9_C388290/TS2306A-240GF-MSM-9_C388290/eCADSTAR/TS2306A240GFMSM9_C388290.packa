@@ -1,0 +1,13 @@
+(unit MM)
+
+(package "TS2306A-240GF-MSM-9_C388290"
+    (type UNDEF)
+    (uver 2)
+    (cuser "SamacSys")
+    (uuser "SamacSys")
+    (utime 2019-08-23-10:32:21)
+    (mountForm default
+        (footprintRef "TS2306A240GFMSM9_C388290")
+        (spec "System")
+    )
+)

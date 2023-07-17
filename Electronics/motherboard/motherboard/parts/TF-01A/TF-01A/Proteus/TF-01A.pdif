@@ -1,0 +1,224 @@
+;Proteus Design Interchange Format
+(PDIF
+ (vendor "SamacSys Limited")
+ (version 1 0)
+ (library
+  (part "TF-01A"
+   (description "Connector - Card Sockets 8 1.1mm SMD RoHS")
+   (family "CON")
+   (package "TF01A")
+   (attribute "Datasheet Link" "https://datasheet.lcsc.com/szlcsc/1903221101_Korean-Hroparts-Elec-TF-01A_C91145.pdf")
+   (attribute "Geometry.Height" "1.85mm")
+   (attribute "Manufacturer_Name" "Korean Hroparts Elec")
+   (attribute "Manufacturer_Part_Number" "TF-01A")
+   (attribute "Mouser Part Number" "")
+   (attribute "Mouser Price/Stock" "")
+   (attribute "Arrow Part Number" "")
+   (attribute "Arrow Price/Stock" "")
+   (gate
+    (symbol "TF-01A")
+    (pin "1" 1 PS)
+    (pin "2" 2 PS)
+    (pin "3" 3 PS)
+    (pin "4" 4 PS)
+    (pin "5" 5 PS)
+    (pin "6" 6 PS)
+    (pin "7" 7 PS)
+    (pin "8" 8 PS)
+    (pin "CD1" CD1 PS)
+    (pin "MP1" MP1 PS)
+    (pin "MP2" MP2 PS)
+    (pin "MP3" MP3 PS)
+    (pin "MP4" MP4 PS)
+   )
+  )
+  (symbol "TF-01A"
+   (units THOU)
+   (origin (pt 0 0))
+   (graphic
+    (stroke 10)
+    (path (pt 200 100) (pt 700 100) (pt 700 -700) (pt 200 -700) (pt 200 100) (closed))
+   )
+   (terminal
+    (body (symbol "PIN") (pt 0 0) (rot 0) (mir 0) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 0 -100) (rot 0) (mir 0) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 0 -200) (rot 0) (mir 0) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 0 -300) (rot 0) (mir 0) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 0 -400) (rot 0) (mir 0) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 0 -500) (rot 0) (mir 0) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 0 -600) (rot 0) (mir 0) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 900 0) (rot 0) (mir X) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 900 -100) (rot 0) (mir X) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 900 -200) (rot 0) (mir X) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 900 -300) (rot 0) (mir X) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 900 -400) (rot 0) (mir X) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+   (terminal
+    (body (symbol "PIN") (pt 900 -500) (rot 0) (mir X) (visible true))
+    (name (pt 230 0) (rot 0) (just MIDDLE LEFT) (visible true))
+    (number (pt 140 20) (rot 0) (just BOTTOM RIGHT) (visible true)))
+  )
+  (symbol "PIN"
+   (units THOU)
+   (origin (pt 0 0))
+   (graphic
+    (stroke 10)
+    (path (pt 0 0) (pt 200 0))))
+  (symbol "PINSHORT"
+   (units THOU)
+   (origin (pt 0 0))
+   (graphic
+    (stroke 10)
+    (path (pt 0 0) (pt 100 0))))
+  (package "TF01A"
+   (units MM)
+   (layer TASM
+    (graphic
+     (stroke 0.2)
+     (path
+      (closed true)
+      (pt -7.4 7.25)
+      (pt 7.4 7.25)
+      (pt 7.4 -7.25)
+      (pt -7.4 -7.25)
+      (pt -7.4 7.25))))
+   (layer OCCA
+    (graphic
+     (stroke 0.1)
+     (path
+      (closed true)
+      (pt -9.36 8.9)
+      (pt 9.36 8.9)
+      (pt 9.36 -8.25)
+      (pt -9.36 -8.25)
+      (pt -9.36 8.9))))
+   (layer TSLK
+    (graphic
+     (stroke 0.1)
+     (path
+      (closed false)
+      (pt -7.4 5)
+      (pt -7.4 -1.5))))
+   (layer TSLK
+    (graphic
+     (stroke 0.1)
+     (path
+      (closed false)
+      (pt -7.4 -5)
+      (pt -7.4 -7.25)
+      (pt 7.4 -7.25)
+      (pt 7.4 -5.5))))
+   (layer TSLK
+    (graphic
+     (stroke 0.1)
+     (path
+      (closed false)
+      (pt 7.4 -1.5)
+      (pt 7.4 5))))
+   (layer TSLK
+    (graphic
+     (stroke 0.1)
+     (path
+      (closed false)
+      (pt 3.5 7.25)
+      (pt 6.5 7.25))))
+   (layer TSLK
+    (graphic
+     (stroke 0.2)
+     (path
+      (closed true)
+      (pt 2.6 8.3)
+      (arc (pt 2.600 8.300) (pt 2.500 8.300) (pt 2.700 8.500) (start 180.0) (sweep -90.0))
+      (pt 2.6 8.5)
+      (arc (pt 2.600 8.500) (pt 2.500 8.300) (pt 2.700 8.500) (start 180.0) (sweep 90.0))
+      (pt 2.6 8.3))))
+   (leg 1 (pt 2.560 7.250) (padstack 0))
+   (leg 2 (pt 1.460 7.250) (padstack 0))
+   (leg 3 (pt 0.360 7.250) (padstack 0))
+   (leg 4 (pt -0.740 7.250) (padstack 0))
+   (leg 5 (pt -1.840 7.250) (padstack 0))
+   (leg 6 (pt -2.940 7.250) (padstack 0))
+   (leg 7 (pt -4.040 7.250) (padstack 0))
+   (leg 8 (pt -5.140 7.250) (padstack 0))
+   (leg 14 (pt -4.950 -3.300) (padstack 9))
+   (leg 15 (pt 3.050 -3.300) (padstack 10))
+   (leg CD1 (pt -6.240 7.250) (padstack 0))
+   (leg MP1 (pt -7.340 6.400) (padstack 12))
+   (leg MP2 (pt -7.760 -3.300) (padstack 13))
+   (leg MP3 (pt 7.760 -3.300) (padstack 14))
+   (leg MP4 (pt 7.340 6.400) (padstack 15))
+   (padstack 0
+    (plated false)
+    (pad (layer TCOP) (rectf 0.700 1.300 0 0 90.000))
+   )
+   (padstack 9
+    (hole 1)
+    (plated false)
+    (pad (layer TCOP) (round 0.500))
+    (pad (layer INNER) (round 0.500))
+    (pad (layer BCOP) (round 0.500))
+   )
+   (padstack 10
+    (hole 1)
+    (plated false)
+    (pad (layer TCOP) (round 0.500))
+    (pad (layer INNER) (round 0.500))
+    (pad (layer BCOP) (round 0.500))
+   )
+   (padstack 12
+    (plated false)
+    (pad (layer TCOP) (rectf 1.200 1.400 0 0 90.000))
+   )
+   (padstack 13
+    (plated false)
+    (pad (layer TCOP) (rectf 1.200 2.000 0 0 90.000))
+   )
+   (padstack 14
+    (plated false)
+    (pad (layer TCOP) (rectf 1.200 2.000 0 0 90.000))
+   )
+   (padstack 15
+    (plated false)
+    (pad (layer TCOP) (rectf 1.200 1.400 0 0 90.000))
+   )
+   (model "TF-01A.stp"
+    (euler 0 0 90)
+    (offset 7.630000114440918 -7.170000076293945 0.3499999940395355)
+   )
+  )
+ )
+)

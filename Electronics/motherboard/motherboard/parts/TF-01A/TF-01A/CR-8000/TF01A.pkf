@@ -1,0 +1,10 @@
+(unit MM)
+
+(package "TF01A"
+    (type UNDEF)
+    (uver 2)
+    (mountForm default
+        (footprintRef "TF01A")
+        (spec "default")
+    )
+)

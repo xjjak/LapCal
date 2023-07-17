@@ -1,0 +1,10 @@
+(sym_lib_table
+  (lib (name "TCA9548APWR")(type "KiCad")(uri "${KIPRJMOD}/lib_sch/TCA9548APWR.kicad_sym")(options "")(descr ""))
+  (lib (name "ESP32-WROOM-32E__16MB_")(type "KiCad")(uri "${KIPRJMOD}/lib_sch/ESP32-WROOM-32E__16MB_.kicad_sym")(options "")(descr ""))
+  (lib (name "DM3AT-SF-PEJM5")(type "KiCad")(uri "${KIPRJMOD}/lib_sch/DM3AT-SF-PEJM5.kicad_sym")(options "")(descr ""))
+  (lib (name "CH340C")(type "KiCad")(uri "${KIPRJMOD}/lib_sch/CH340C.kicad_sym")(options "")(descr ""))
+  (lib (name "MAX1627ESA+T")(type "KiCad")(uri "${KIPRJMOD}/lib_sch/MAX1627ESA+T.kicad_sym")(options "")(descr ""))
+  (lib (name "SM04B-SRSS-TB_LF__SN_")(type "KiCad")(uri "${KIPRJMOD}/lib_sch/SM04B-SRSS-TB_LF__SN_.kicad_sym")(options "")(descr ""))
+  (lib (name "TS2306A-240GF-MSM-9_C388290")(type "Legacy")(uri "${KIPRJMOD}/lib_sch/TS2306A-240GF-MSM-9_C388290.lib")(options "")(descr ""))
+  (lib (name "TF-01A")(type "KiCad")(uri "${KIPRJMOD}/lib_sch/TF-01A.kicad_sym")(options "")(descr ""))
+)

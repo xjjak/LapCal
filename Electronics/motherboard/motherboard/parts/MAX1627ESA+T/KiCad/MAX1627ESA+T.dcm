@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MAX1627ESA+T
+D MAXIM INTEGRATED PRODUCTS - MAX1627ESA+T - DC/DC Controller, Buck (Step Down), 3 V to 16.5 V, 1 Output, 300kHz PWM Switching, NSOIC-8
+K
+F https://datasheets.maximintegrated.com/en/ds/MAX1626-MAX1627.pdf
+$ENDCMP
+#
+#End Doc Library

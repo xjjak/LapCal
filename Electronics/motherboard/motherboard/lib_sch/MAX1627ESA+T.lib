@@ -1,0 +1,33 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#SamacSys ECAD Model MAX1627ESA+T
+#/547820/1051602/2.49/8/3/Integrated Circuit
+DEF MAX1627ESA+T IC 0 30 Y Y 1 F N
+F0 "IC" 1150 300 50 H V L CNN
+F1 "MAX1627ESA+T" 1150 200 50 H V L CNN
+F2 "SOIC127P600X175-8N" 1150 100 50 H I L CNN
+F3 "https://datasheets.maximintegrated.com/en/ds/MAX1626-MAX1627.pdf" 1150 0 50 H I L CNN
+F4 "MAXIM INTEGRATED PRODUCTS - MAX1627ESA+T - DC/DC Controller, Buck (Step Down), 3 V to 16.5 V, 1 Output, 300kHz PWM Switching, NSOIC-8" 1150 -100 50 H I L CNN "Description"
+F5 "1.75" 1150 -200 50 H I L CNN "Height"
+F6 "Maxim Integrated" 1150 -300 50 H I L CNN "Manufacturer_Name"
+F7 "MAX1627ESA+T" 1150 -400 50 H I L CNN "Manufacturer_Part_Number"
+F8 "700-MAX1627ESAT" 1150 -500 50 H I L CNN "Mouser Part Number"
+F9 "https://www.mouser.co.uk/ProductDetail/Maxim-Integrated/MAX1627ESA%2bT/?qs=Mqkh4jHMT8yITKtJyBDb3Q%3D%3D" 1150 -600 50 H I L CNN "Mouser Price/Stock"
+F10 "" 1150 -700 50 H I L CNN "Arrow Part Number"
+F11 "" 1150 -800 50 H I L CNN "Arrow Price/Stock"
+F12 "" 1150 -900 50 H I L CNN "Mouser Testing Part Number"
+F13 "" 1150 -1000 50 H I L CNN "Mouser Testing Price/Stock"
+DRAW
+X OUT 1 0 0 200 R 50 50 0 0 P
+X ~3~/5_(FB) 2 0 -100 200 R 50 50 0 0 P
+X SHDN 3 0 -200 200 R 50 50 0 0 P
+X REF 4 0 -300 200 R 50 50 0 0 P
+X GND 8 1300 0 200 L 50 50 0 0 P
+X EXT 7 1300 -100 200 L 50 50 0 0 P
+X CS 6 1300 -200 200 L 50 50 0 0 P
+X V+ 5 1300 -300 200 L 50 50 0 0 P
+P 5 0 1 6 200 100 1100 100 1100 -400 200 -400 200 100 N
+ENDDRAW
+ENDDEF
+#
+#End Library
