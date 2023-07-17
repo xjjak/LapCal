@@ -1,0 +1,9 @@
+Manufacturer=Korean Hroparts Elec
+PartNumber=TF-01A
+PartCategory=Connector
+PackageCategory=Other
+PinCount=13
+Version=1.1
+Released=2019-08-08 15:52:00
+Downloaded=2023-04-10 13:58:52
+3D=Y

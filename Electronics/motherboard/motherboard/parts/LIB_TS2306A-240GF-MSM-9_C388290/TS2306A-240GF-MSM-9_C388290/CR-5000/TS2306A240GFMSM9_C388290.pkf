@@ -1,0 +1,10 @@
+(unit MM)
+
+(package "TS2306A240GFMSM9_C388290"
+    (type UNDEF)
+    (uver 2)
+    (mountForm default
+        (footprintRef "TS2306A240GFMSM9_C388290")
+        (spec "default")
+    )
+)

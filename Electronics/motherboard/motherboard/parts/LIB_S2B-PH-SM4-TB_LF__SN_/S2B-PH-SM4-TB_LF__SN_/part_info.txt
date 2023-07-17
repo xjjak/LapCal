@@ -1,0 +1,9 @@
+Manufacturer=JST (JAPAN SOLDERLESS TERMINALS)
+PartNumber=S2B-PH-SM4-TB(LF)(SN)
+PartCategory=Connector
+PackageCategory=Other
+PinCount=4
+Version=1.4
+Released=2020-06-09 10:36:56
+Downloaded=2023-03-03 16:26:45
+3D=Y

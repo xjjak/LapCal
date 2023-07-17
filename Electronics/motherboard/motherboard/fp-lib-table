@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "lib_fp")(type "KiCad")(uri "${KIPRJMOD}/lib_fp.pretty")(options "")(descr ""))
+  (lib (name "3d_models")(type "KiCad")(uri "${KIPRJMOD}/3d_models")(options "")(descr ""))
+)

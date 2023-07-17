@@ -1,0 +1,19 @@
+.S2B-PH-SM4-TB_LF__SN_ :1 ;Conn Shrouded Header (4 Sides) HDR 2 POS 2mm Solder RA Side Entry SMD T/R
+S2BPHSM4TBLFSN
+*STM J
+*NGS
+*PNM 1=1 2=2 3=MP1 4=MP2
+*PLB 1="1" 2="2" 3="MP1" 4="MP2"
+*MXP 4
+*DFN S2B-PH-SM4-TB_LF__SN_
+~!Manufacturer_Name (JST (JAPAN SOLDERLESS TERMINALS))
+~!Manufacturer_Part_Number (S2B-PH-SM4-TB(LF)(SN))
+~!Mouser Part Number (-)
+~!Mouser Price/Stock (-)
+~!Arrow Part Number (S2B-PH-SM4-TB(LF)(SN))
+~!Link Arrow Price/Stock (https://www.arrow.com/en/products/s2b-ph-sm4-tb-lf-sn/jst-manufacturing?region=europe)
+~!Link Datasheet (https://www.jst-mfg.com/product/pdf/eng/ePH.pdf)
+~!Height (6.6mm)
+~!3D_Model (S2B-PH-SM4-TB_LF__SN_)
+S2B-PH-SM4-TB_LF__SN_
+1.1!U 2.1!U 3.1!U 4.1!U 

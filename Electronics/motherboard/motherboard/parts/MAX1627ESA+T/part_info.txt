@@ -1,0 +1,9 @@
+Manufacturer=Maxim Integrated
+PartNumber=MAX1627ESA+T
+PartCategory=Integrated Circuit
+PackageCategory=Small Outline Packages
+PinCount=8
+Version=1.1
+Released=2022-06-15 07:25:33
+Downloaded=2023-01-12 11:35:41
+3D=Y

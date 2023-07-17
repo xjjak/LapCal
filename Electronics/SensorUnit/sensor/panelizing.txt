@@ -1,0 +1,7 @@
+kikit panelize \
+--layout 'grid; rows: 2; cols: 3; space: 2mm; rotation: 180deg; alternation: rows;' \
+--tabs 'fixed, width: 5mm' \
+--cuts 'mousebites; drill: 0.5mm; spacing: 1mm; offset: 0.2mm; prolong: 0.8mm' \
+--framing 'railslr; width: 5mm; space: 3mm;' \
+--post 'millradius: 1mm' \
+Documents/Projects/DataGlove/Electronics/SensorUnit/sensor/sensor.kicad_pcb Documents/Projects/DataGlove/Electronics/SensorUnit/sensor/panel_sensor.kicad_pcb

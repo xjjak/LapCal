@@ -1,0 +1,13 @@
+(unit MM)
+
+(package "S2B-PH-SM4-TB_LF__SN_"
+    (type UNDEF)
+    (uver 2)
+    (cuser "SamacSys")
+    (uuser "SamacSys")
+    (utime 2021-06-10-09:46:22)
+    (mountForm default
+        (footprintRef "S2BPHSM4TBLFSN")
+        (spec "System")
+    )
+)
