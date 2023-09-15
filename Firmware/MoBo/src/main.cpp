@@ -25,11 +25,8 @@ void set_bat_flag() {
 TickTwo timer_battery_check(set_bat_flag, 300000, 0, MILLIS);
 
 
-// const char* ssid = "schueler";
-// const char* password = "lundlundlund";
-
-const char* ssid = "terrasseng";
-const char* password = "33640559690972093899";
+const char* ssid = "schueler";
+const char* password = "lundlundlund";
 
 // NTP Server to request epoch time
 const char* ntpServer = "de.pool.ntp.org";
