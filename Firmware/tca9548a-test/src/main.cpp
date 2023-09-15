@@ -159,5 +159,5 @@ void loop() {
   // Serial.print(";");
   // Serial.print(g2.gyro.z);
   // Serial.println("");
-  delay(500);
+  delay(1000);
 }
