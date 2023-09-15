@@ -19,7 +19,7 @@
 
 bool check_bat_flag = false;
 void set_bat_flag() {
-    check_bat_flag = true;
+  check_bat_flag = true;
 }
 
 TickTwo timer_battery_check(set_bat_flag, 300000, 0, MILLIS);
@@ -82,13 +82,13 @@ Adafruit_MPU6050 Sensors[] = {sense1, sense2, sense3, sense4, sense5};
 bool sensor_presence[] = {false, false, false, false, false};
 
 void blink(int pin){
-    digitalWrite(pin,HIGH);
-    delay(300);
-    digitalWrite(pin,LOW);
-    delay(300);
-    digitalWrite(pin,HIGH);
-    delay(300);
-    digitalWrite(pin,LOW);
+  digitalWrite(pin,HIGH);
+  delay(300);
+  digitalWrite(pin,LOW);
+  delay(300);
+  digitalWrite(pin,HIGH);
+  delay(300);
+  digitalWrite(pin,LOW);
 }
 
 // Function that gets current epoch time
@@ -138,8 +138,8 @@ void setup_sensor(Adafruit_MPU6050& mpu_unit, int id) {
   Serial.print("Setting up Sensor: ");Serial.println(id);
   tca_select(id);
   if (!mpu_unit.begin()) {
-      Serial.println("mpu_unit failed.");
-      return;
+    Serial.println("mpu_unit failed.");
+    return;
   }
   sensor_presence[id] = true;
   Serial.println("mpu_unit found.");
@@ -170,17 +170,17 @@ String sense_readings(Adafruit_MPU6050& mpu_unit) {
 // }
 
 String get_all_readings() {
-    String all_readings[5];
-    for (int i=0;i<SENSOR_COUNT;i++) {
-        if (sensor_presence[i]) {
-            tca_select(i);
-            all_readings[i] = sense_readings(Sensors[i]);
-        } else {
-            all_readings[i] = "none";
-        }
+  String all_readings[5];
+  for (int i=0;i<SENSOR_COUNT;i++) {
+    if (sensor_presence[i]) {
+      tca_select(i);
+      all_readings[i] = sense_readings(Sensors[i]);
+    } else {
+      all_readings[i] = "none";
     }
+  }
     
-    return String(all_readings[0] + ":" + all_readings[1] + ":" + all_readings[2] + ":" + all_readings[3] + ":" + all_readings[4]);
+  return String(all_readings[0] + ":" + all_readings[1] + ":" + all_readings[2] + ":" + all_readings[3] + ":" + all_readings[4]);
 }
 
 void setup_SD(){
@@ -204,32 +204,32 @@ void setup_SD(){
 }
 
 void write_values(String data) {
-   data_File.println(data);
-   data_File.flush();
+  data_File.println(data);
+  data_File.flush();
 }
 
 void detect_touch(uint8_t pin){
-    touch_val = touchRead(pin);
+  touch_val = touchRead(pin);
 
-    if (touch_val > THRESH_NO_TOUCH and cur_touched_state == true) {
-        cur_touched_state = false;
-        // Serial.println("nt");
-        write_values("nt");
-    } else if (touch_val < THRESH_TOUCH and cur_touched_state == false) {
-        cur_touched_state = true;
-        write_values("t");
-        // Serial.println("t");
-    }
+  if (touch_val > THRESH_NO_TOUCH and cur_touched_state == true) {
+    cur_touched_state = false;
+    // Serial.println("nt");
+    write_values("nt");
+  } else if (touch_val < THRESH_TOUCH and cur_touched_state == false) {
+    cur_touched_state = true;
+    write_values("t");
+    // Serial.println("t");
+  }
 }
 
 int battery_read() {
-    int voltage = analogRead(VBAT_SENSE);
-    // Serial.println(voltage);
-    return voltage;
+  int voltage = analogRead(VBAT_SENSE);
+  // Serial.println(voltage);
+  return voltage;
 }
 
 bool battery_connected(){
-    return !(battery_read() < 5);
+  return !(battery_read() < 5);
 }
 
 
@@ -250,7 +250,7 @@ void setup(){
   // ------SETUP SENSORS-------
   Serial.println("Setting up Sensors");
   for (int i=0;i<SENSOR_COUNT;i++) {
-      setup_sensor(Sensors[i], i);
+    setup_sensor(Sensors[i], i);
   } 
 
   digitalWrite(LED_BLUE, LOW);
@@ -265,26 +265,26 @@ void setup(){
 
 void loop(){
   write_values(get_all_readings());
-      // Serial.println(get_all_readings());
-      // Serial.println(battery_read());
-      if (check_bat_flag){
-          Serial.println("Checking bat...");
-          if (battery_connected()) {
-              if (battery_read() < THRESH_LOW_BAT) {
-                  esp_sleep_enable_timer_wakeup(86400000000);
-                  Serial.println("Threshhold reached. Idling");
-                  blink(LED_GREEN);
-                  delay(1000);
-                  Serial.flush(); 
-                  esp_deep_sleep_start();
-              }
-          }
-          check_bat_flag = false;
+  // Serial.println(get_all_readings());
+  // Serial.println(battery_read());
+  if (check_bat_flag){
+    Serial.println("Checking bat...");
+    if (battery_connected()) {
+      if (battery_read() < THRESH_LOW_BAT) {
+        esp_sleep_enable_timer_wakeup(86400000000);
+        Serial.println("Threshhold reached. Idling");
+        blink(LED_GREEN);
+        delay(1000);
+        Serial.flush(); 
+        esp_deep_sleep_start();
       }
+    }
+    check_bat_flag = false;
+  }
 
 
-      delay(300);
-      timer_battery_check.update();
+  delay(300);
+  timer_battery_check.update();
       
   detect_touch(TOUCH_PIN);
 }
