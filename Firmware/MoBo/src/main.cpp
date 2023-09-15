@@ -14,14 +14,40 @@
 #include <WiFi.h>
 #include <ezTime.h>
 
-const char* ssid = "schueler";
-const char* password = "lundlundlund";
+// Tickers
+#include <TickTwo.h>
+
+bool check_bat_flag = false;
+void set_bat_flag() {
+    check_bat_flag = true;
+}
+
+TickTwo timer_battery_check(set_bat_flag, 300000, 0, MILLIS);
+
+
+// const char* ssid = "schueler";
+// const char* password = "lundlundlund";
+
+const char* ssid = "terrasseng";
+const char* password = "33640559690972093899";
 
 // NTP Server to request epoch time
 const char* ntpServer = "de.pool.ntp.org";
 
 // Variable to save current epoch time
 unsigned long epochTime; 
+
+
+// Touch pin value variables
+// uint16_t prev_touch_val;
+bool cur_touched_state = false;
+uint16_t touch_val;
+
+// touch thresholds
+uint16_t THRESH_TOUCH = 15;
+uint16_t THRESH_NO_TOUCH = 30;
+
+int THRESH_LOW_BAT = 1800;
 
 #define SCK 18
 #define MISO 19
@@ -36,7 +62,13 @@ unsigned long epochTime;
 
 #define SD_DETECT 17
 
+#define TOUCH_PIN 32
+
+#define VBAT_SENSE 35
+
 #define SENSOR_COUNT 5
+
+
 
 String output;
 
@@ -51,6 +83,16 @@ Adafruit_MPU6050 sense5;
 
 Adafruit_MPU6050 Sensors[] = {sense1, sense2, sense3, sense4, sense5};
 bool sensor_presence[] = {false, false, false, false, false};
+
+void blink(int pin){
+    digitalWrite(pin,HIGH);
+    delay(300);
+    digitalWrite(pin,LOW);
+    delay(300);
+    digitalWrite(pin,HIGH);
+    delay(300);
+    digitalWrite(pin,LOW);
+}
 
 // Function that gets current epoch time
 unsigned long getTime() {
@@ -169,6 +211,30 @@ void write_values(String data) {
    data_File.flush();
 }
 
+void detect_touch(uint8_t pin){
+    touch_val = touchRead(pin);
+
+    if (touch_val > THRESH_NO_TOUCH and cur_touched_state == true) {
+        cur_touched_state = false;
+        // Serial.println("nt");
+        write_values("nt");
+    } else if (touch_val < THRESH_TOUCH and cur_touched_state == false) {
+        cur_touched_state = true;
+        write_values("t");
+        // Serial.println("t");
+    }
+}
+
+int battery_read() {
+    int voltage = analogRead(VBAT_SENSE);
+    // Serial.println(voltage);
+    return voltage;
+}
+
+bool battery_connected(){
+    return !(battery_read() < 5);
+}
+
 
 void setup(){
   pinMode(LED_BLUE, OUTPUT);
@@ -178,7 +244,8 @@ void setup(){
   digitalWrite(LED_BLUE, HIGH);
   Serial.begin(115200);
 
-  setup_SD();
+  // ------SETUP SD------------
+  // setup_SD();
 
   Serial.println("Initialising i2c");
   Wire.begin(SDA, SCL); // Setup i2c channel on defined pins
@@ -188,8 +255,12 @@ void setup(){
   for (int i=0;i<SENSOR_COUNT;i++) {
       setup_sensor(Sensors[i], i);
   } 
+
   digitalWrite(LED_BLUE, LOW);
   digitalWrite(LED_GREEN, HIGH);
+
+  timer_battery_check.start();
+  
   // uint32_t prev_millis = millis();
   // write_values(get_all_readings());
   // Serial.print("Millis taken: "); Serial.println(millis() - prev_millis);
@@ -197,4 +268,26 @@ void setup(){
 
 void loop(){
   write_values(get_all_readings());
+      // Serial.println(get_all_readings());
+      // Serial.println(battery_read());
+      if (check_bat_flag){
+          Serial.println("Checking bat...");
+          if (battery_connected()) {
+              if (battery_read() < THRESH_LOW_BAT) {
+                  esp_sleep_enable_timer_wakeup(86400000000);
+                  Serial.println("Threshhold reached. Idling");
+                  blink(LED_GREEN);
+                  delay(1000);
+                  Serial.flush(); 
+                  esp_deep_sleep_start();
+              }
+          }
+          check_bat_flag = false;
+      }
+
+
+      delay(300);
+      timer_battery_check.update();
+      
+  detect_touch(TOUCH_PIN);
 }
