@@ -19,7 +19,16 @@ void tca_select(uint8_t bus){
   Wire.endTransmission();
 }
 
+bool mpu_present(){
+    Wire.beginTransmission(0x68);
+    byte error;
+    error = Wire.endTransmission() ;
+    Serial.println((int) error);
+    return (error == 0);
+}
+
 void setup_mpu(Adafruit_MPU6050 mpu_unit, int id)   {
+  Serial.println(mpu_present());
   if (!mpu_unit.begin(0x68, &Wire, id)) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
@@ -74,12 +83,12 @@ void setup(void) {
   // for (int i=0;i<SENSOR_COUNT;i++) {
   //     tca_select(i);
 
-  // tca_select(0);
-  // setup_mpu(sense1, 0);
+  tca_select(0);
+  setup_mpu(sense1, 0);
   // tca_select(1);
   // setup_mpu(sense2, 1);
   //
-  tca_select(5);
+  // tca_select(5);
   if (!sense1.begin()) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
@@ -117,7 +126,7 @@ void loop() {
     // sense_readings(sense2);
     // delay(1000);
 
-  tca_select(5);
+  tca_select(0);
   sense_readings(sense1);
   // sensors_event_t a, g, temp;
   // sense1.getEvent(&a, &g, &temp);
