@@ -1,9 +1,10 @@
 #include <Arduino.h>
 
 // MPU6050 libraries
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
+#include <MPU6050_6Axis_MotionApps20.h>
 #include <Wire.h>
+
+#include "config.h"
 
 // MicroSD card libraries
 #include "FS.h"
@@ -16,6 +17,30 @@
 
 // Tickers
 #include <TickTwo.h>
+
+// -----DEFINITIONS---
+#define SCK 18
+#define MISO 19
+#define MOSI 23
+#define CS 5
+
+#define LED_GREEN 33
+#define LED_BLUE 13
+
+#define SDA 21
+#define SCL 22
+
+#define SD_DETECT 17
+
+#define TOUCH_PIN 32
+
+#define VBAT_SENSE 35
+
+#define SENSOR_COUNT 6
+//---------------------
+
+
+bool sd_card_present = false;
 
 bool check_bat_flag = false;
 void set_bat_flag() {
@@ -46,40 +71,55 @@ uint16_t THRESH_NO_TOUCH = 30;
 
 int THRESH_LOW_BAT = 1800;
 
-#define SCK 18
-#define MISO 19
-#define MOSI 23
-#define CS 5
-
-#define LED_GREEN 33
-#define LED_BLUE 13
-
-#define SDA 21
-#define SCL 22
-
-#define SD_DETECT 17
-
-#define TOUCH_PIN 32
-
-#define VBAT_SENSE 35
-
-#define SENSOR_COUNT 5
 
 
 
 String output;
 
 SPIClass spi = SPIClass(VSPI);
-File data_File;
+File dataFile;
 
-Adafruit_MPU6050 sense1;
-Adafruit_MPU6050 sense2;
-Adafruit_MPU6050 sense3;
-Adafruit_MPU6050 sense4;
-Adafruit_MPU6050 sense5;
+//------ MPU DECLARATIONS ------
 
-Adafruit_MPU6050 Sensors[] = {sense1, sense2, sense3, sense4, sense5};
-bool sensor_presence[] = {false, false, false, false, false};
+// MPU6050 sense1;
+// MPU6050 sense2;
+// MPU6050 sense3;
+// MPU6050 sense4;
+// MPU6050 sense5;
+//
+// MPU6050 mpu = Sensors[4];
+
+// MPU6050* Sensors[] = {sense1, sense2, sense3, sense4, sense5};
+MPU6050 Sensors[SENSOR_COUNT];
+bool sensor_presence[SENSOR_COUNT] = {};
+
+// MPU control/status vars
+uint8_t devStatus;      // return status after each device operation (0 = success, !0 = error)
+uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
+uint16_t fifoCount;     // count of all bytes currently in FIFO
+uint8_t fifoBuffer[64]; // FIFO storage buffer
+
+// orientation/motion vars
+Quaternion q;           // [w, x, y, z]         quaternion container
+VectorInt16 aa;         // [x, y, z]            accel sensor measurements
+VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
+VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
+VectorFloat gravity;    // [x, y, z]            gravity vector
+float euler[3];         // [psi, theta, phi]    Euler angle container
+float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+
+struct reading {
+    float ax;
+    float ay;
+    float az;
+    float gx;
+    float gy;
+    float gz;
+};
+
+//---------------------
+char all_readings_char[SENSOR_COUNT*201];
+
 
 void blink(int pin){
   digitalWrite(pin,HIGH);
@@ -134,53 +174,143 @@ void tca_select(uint8_t bus){
   Wire.endTransmission();
 }
 
-void setup_sensor(Adafruit_MPU6050& mpu_unit, int id) {
-  Serial.print("Setting up Sensor: ");Serial.println(id);
-  tca_select(id);
-  if (!mpu_unit.begin()) {
-    Serial.println("mpu_unit failed.");
-    return;
-  }
-  sensor_presence[id] = true;
-  Serial.println("mpu_unit found.");
-  mpu_unit.setAccelerometerRange(MPU6050_RANGE_8_G);
-  mpu_unit.setGyroRange(MPU6050_RANGE_500_DEG);
-  mpu_unit.setFilterBandwidth(MPU6050_BAND_5_HZ);
+bool mpu_present(){
+    Wire.beginTransmission(0x68);
+    byte error;
+    error = Wire.endTransmission() ;
+    // Serial.println((int) error);
+    return (error == 0);
 }
 
-String sense_readings(Adafruit_MPU6050& mpu_unit) {
-  /* Get new sensor events with the readings */
-  sensors_event_t a, g, temp;
-  mpu_unit.getEvent(&a, &g, &temp);
+void setup_sensor(int id) {
+    Serial.print("Setting up Sensor: ");Serial.println(id);
 
-  String ax = String(a.acceleration.x);
-  String ay = String(a.acceleration.y);
-  String az = String(a.acceleration.z);
-  String gx = String(g.gyro.x);
-  String gy = String(g.gyro.y);
-  String gz = String(g.gyro.z);
 
-  String output = String(ax+";"+ay+";"+az+";"+gx+";"+gx+";"+gx);
+    tca_select(id);
 
-  return output;
-}
-
-// char[] format_readings(ax, ay, az, gx, gy, gz) {
-//     int[] vals = {ax*1000, ay*1000, az*1000, gx*1000, gy*1000, gz*1000};
-// }
-
-String get_all_readings() {
-  String all_readings[5];
-  for (int i=0;i<SENSOR_COUNT;i++) {
-    if (sensor_presence[i]) {
-      tca_select(i);
-      all_readings[i] = sense_readings(Sensors[i]);
-    } else {
-      all_readings[i] = "none";
+    if (!mpu_present()){
+        Serial.println("Nothing there.");
+        sensor_presence[id] = false;
+        return;
     }
-  }
-    
-  return String(all_readings[0] + ":" + all_readings[1] + ":" + all_readings[2] + ":" + all_readings[3] + ":" + all_readings[4]);
+
+    MPU6050 mpu = Sensors[id];
+    mpu.initialize();
+
+    Serial.println(F("Testing device connections..."));
+    Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
+
+    // verify connection
+
+    // load and configure the DMP
+    Serial.println(F("Initializing DMP..."));
+    devStatus = mpu.dmpInitialize();
+    // supply your own gyro offsets here, scaled for min sensitivity
+    mpu.setXAccelOffset(mpu_offsets[id].xa); // 1688 factory default for my test chip
+    mpu.setYAccelOffset(mpu_offsets[id].ya); // 1688 factory default for my test chip
+    mpu.setZAccelOffset(mpu_offsets[id].za); // 1688 factory default for my test chip
+    mpu.setXGyroOffset(mpu_offsets[id].xg);
+    mpu.setYGyroOffset(mpu_offsets[id].yg);
+    mpu.setZGyroOffset(mpu_offsets[id].zg);
+
+
+    // make sure it worked (returns 0 if so)
+    if (devStatus == 0) {
+        // turn on the DMP, now that it's ready
+        Serial.println(F("Enabling DMP..."));
+        mpu.setDMPEnabled(true);
+
+        // get expected DMP packet size for later comparison
+        packetSize = mpu.dmpGetFIFOPacketSize();
+        sensor_presence[id] = true;
+    } else {
+        // ERROR!
+        // 1 = initial memory load failed
+        // 2 = DMP configuration updates failed
+        // (if it's going to break, usually the code will be 1)
+        Serial.print(F("DMP Initialization failed (code "));
+        Serial.print(devStatus);
+        Serial.println(F(")"));
+    }
+}
+
+void readFifoBuffer(MPU6050 mpu) {
+
+    // Serial.println("Reading fifo buffer...");
+    // Clear the buffer so as we can get fresh values
+    // The sensor is running a lot faster than our sample period
+    mpu.resetFIFO();
+
+    // get current FIFO count
+    fifoCount = mpu.getFIFOCount();
+
+    // wait for correct available data length, should be a VERY short wait
+    while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
+
+    // read a packet from FIFO
+    mpu.getFIFOBytes(fifoBuffer, packetSize);
+    // Serial.println("Read buffer.");
+}
+
+reading sense_readings(MPU6050 mpu) {
+    readFifoBuffer(mpu);
+    // display real acceleration, adjusted to remove gravity
+    // Serial.println("Getting vals");
+    mpu.dmpGetQuaternion(&q, fifoBuffer);
+    mpu.dmpGetAccel(&aa, fifoBuffer);
+    mpu.dmpGetGravity(&gravity, &q);
+    mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+    mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+    reading output;
+    // float x = aaReal.x;
+    // float y = aaReal.y;
+    // float z = aaReal.z;
+    // float yaw = ypr[0]* 180/M_PI;
+    // float pitch = ypr[1]* 180/M_PI;
+    // float roll = ypr[2]* 180/M_PI;
+    output.ax = aaReal.x;
+    output.ay = aaReal.y;
+    output.az = aaReal.z;
+    // output.gx = ypr[0]* 180/M_PI;
+    // output.gy = ypr[1]* 180/M_PI;
+    // output.gz = ypr[2]* 180/M_PI;
+    output.gx = ypr[0];
+    output.gy = ypr[1];
+    output.gz = ypr[2];
+
+    // Serial.println("here they are:");
+    //
+    // char buf[200];
+    // sprintf(buf,"%.2f;%.2f;%.2f;%.2f;%.2f;%.2f", output.ax,output.ay,output.az,output.gx,output.gy,output.gz);
+    // Serial.println(buf);
+    // Serial.println(output.gx);
+    // return buf;
+    // Serial.println("Returning values...");
+    return output;
+}
+
+void get_all_readings(char* output_buf) {
+    // char output_buf[1005];
+    output_buf[0] = (char)0;
+    char return_buf[200];
+    reading values_read;
+    for (int i=0;i<SENSOR_COUNT;i++) {
+        if (sensor_presence[i]) {
+            tca_select(i);
+            values_read = sense_readings(Sensors[i]);
+            sprintf(return_buf,"%.2f;%.2f;%.2f;%.2f;%.2f;%.2f:", values_read.ax,values_read.ay,values_read.az,values_read.gx,values_read.gy,values_read.gz);
+            strcat(output_buf, return_buf);
+            // Serial.println("Got some values");
+        } else {
+            strcat(output_buf, "-:");
+        }
+    }
+    // output_string = String(all_readings[0] + ":" + all_readings[1] + ":" + all_readings[2] + ":" + all_readings[3] + ":" + all_readings[4]);
+    // Serial.println(output_string);
+    // return output_string;
+    // return String(all_readings[0] + ":" + all_readings[1] + ":" + all_readings[2] + ":" + all_readings[3] + ":" + all_readings[4]);
+    // Serial.println(output_buf);
+    // return output_buf;
 }
 
 void setup_SD(){
@@ -192,20 +322,28 @@ void setup_SD(){
   uint8_t cardType = SD.cardType();
 
   if(cardType == CARD_NONE){
-    Serial.println("No SD card attached");
+    Serial.println("No SD card attached, using serial connection");
     digitalWrite(LED_BLUE, LOW);
-    while(true) {
-
-    }
+    // while(true) {
+    //
+    // }
+  } else {
+      sd_card_present = true;
+      Serial.println("Done setting up SD Card");
+      
+      dataFile = SD.open(gen_file_name(), FILE_APPEND);
   }
-  Serial.println("Done setting up SD Card");
-  
-  data_File = SD.open(gen_file_name(), FILE_APPEND);
 }
 
-void write_values(String data) {
-  data_File.println(data);
-  data_File.flush();
+void write_values(char* data) {
+  // Serial.println("Writing values...");
+  // Serial.println(data);
+  if (sd_card_present){
+      dataFile.println(data);
+      dataFile.flush();
+  } else {
+      Serial.println(data);
+  }
 }
 
 void detect_touch(uint8_t pin){
@@ -213,11 +351,13 @@ void detect_touch(uint8_t pin){
 
   if (touch_val > THRESH_NO_TOUCH and cur_touched_state == true) {
     cur_touched_state = false;
-    // Serial.println("nt");
-    write_values("nt");
+    // Serial.print("nt");
+    char no_t[] = "nt";
+    write_values(no_t);
   } else if (touch_val < THRESH_TOUCH and cur_touched_state == false) {
     cur_touched_state = true;
-    write_values("t");
+    char to[] = "t";
+    write_values(to);
     // Serial.println("t");
   }
 }
@@ -242,7 +382,7 @@ void setup(){
   Serial.begin(115200);
 
   // ------SETUP SD------------
-  // setup_SD();
+  setup_SD();
 
   Serial.println("Initialising i2c");
   Wire.begin(SDA, SCL); // Setup i2c channel on defined pins
@@ -250,7 +390,7 @@ void setup(){
   // ------SETUP SENSORS-------
   Serial.println("Setting up Sensors");
   for (int i=0;i<SENSOR_COUNT;i++) {
-    setup_sensor(Sensors[i], i);
+    setup_sensor(i);
   } 
 
   digitalWrite(LED_BLUE, LOW);
@@ -264,11 +404,13 @@ void setup(){
 }
 
 void loop(){
-  write_values(get_all_readings());
-  // Serial.println(get_all_readings());
-  // Serial.println(battery_read());
+  // Serial.println("Sensing.");
+  get_all_readings(all_readings_char);
+  Serial.print(".");
+  write_values(all_readings_char);
+  // Serial.println("Checking bat_stat");
   if (check_bat_flag){
-    Serial.println("Checking bat...");
+    // Serial.println("Checking bat...");
     if (battery_connected()) {
       if (battery_read() < THRESH_LOW_BAT) {
         esp_sleep_enable_timer_wakeup(86400000000);
@@ -282,9 +424,11 @@ void loop(){
     check_bat_flag = false;
   }
 
+  // Serial.println("detecting touch");
+  detect_touch(TOUCH_PIN);
 
-  delay(300);
+  // Serial.println("Loop done.");
+  // delay(1);
   timer_battery_check.update();
       
-  detect_touch(TOUCH_PIN);
 }
