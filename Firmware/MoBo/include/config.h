@@ -1,3 +1,38 @@
+// -----DEFINITIONS---
+#define SCK 18
+#define MISO 19
+#define MOSI 23
+#define CS 5
+
+#define LED_GREEN 33
+#define LED_BLUE 13
+
+#define SDA 21
+#define SCL 22
+
+#define SD_DETECT 17
+
+#define TOUCH_PIN 32
+
+#define VBAT_SENSE 35
+
+#define SENSOR_COUNT 6
+//---------------------
+
+// THRESHHOLDS
+#define THRESH_LOW_BAT 1800
+#define THRESH_TOUCH 15
+#define THRESH_NO_TOUCH 30
+
+struct reading {
+    float ax;
+    float ay;
+    float az;
+    float gx;
+    float gy;
+    float gz;
+};
+
 struct offsets {
     int xa, ya, za, xg, yg, zg;
 };
