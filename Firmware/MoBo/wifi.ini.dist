@@ -1,0 +1,4 @@
+[wifi]
+wifi_flags =
+  -D WIFI_SSID="ssid"
+  -D WIFI_PASS="password"
