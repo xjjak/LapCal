@@ -6,8 +6,18 @@
 #include "config.h"
 #include "filename.h"
 
-const char* ssid = "schueler";
-const char* password = "lundlundlund";
+#ifndef WIFI_SSID
+#error Setup wifi.ini and the wifi_flags (these will be added as build_flags in platformio.ini)
+#endif
+
+#ifndef WIFI_PASS
+#error Setup wifi.ini and the wifi_flags (these will be added as build_flags in platformio.ini)
+#endif
+
+#define STR(x) #x
+
+const char* ssid = STR(WIFI_SSID);
+const char* password = STR(WIFI_PASS);
 
 // NTP Server to request epoch time
 const char* ntpServer = "de.pool.ntp.org";
