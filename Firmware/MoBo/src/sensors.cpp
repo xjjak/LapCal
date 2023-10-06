@@ -30,6 +30,7 @@ float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gra
 
 void setup_i2c(int sda, int scl){
     Wire.begin(sda, scl);
+    Wire.setClock(400000);
 }
 
 // Select I2C BUS
@@ -47,7 +48,7 @@ bool mpu_present(){
     return (error == 0);
 }
 
-void setup_sensor(int id) {
+int setup_sensor(int id) {
     Serial.print("Setting up Sensor: ");Serial.println(id);
 
 
@@ -56,7 +57,7 @@ void setup_sensor(int id) {
     if (!mpu_present()){
         Serial.println("Nothing there.");
         sensor_presence[id] = false;
-        return;
+        return 1;
     }
 
     MPU6050 mpu = Sensors[id];
@@ -96,7 +97,10 @@ void setup_sensor(int id) {
         Serial.print(F("DMP Initialization failed (code "));
         Serial.print(devStatus);
         Serial.println(F(")"));
+        return 1;
     }
+
+    return 0;
 }
 
 void readFifoBuffer(MPU6050 mpu) {
@@ -108,7 +112,7 @@ void readFifoBuffer(MPU6050 mpu) {
 
     // get current FIFO count
     fifoCount = mpu.getFIFOCount();
-
+    
     // wait for correct available data length, should be a VERY short wait
     while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
 
@@ -159,7 +163,8 @@ void get_all_readings(reading* output) {
 
 void format_readings(reading* input, char* output_buf) {
     // char output_buf[1005];
-    output_buf[0] = (char)0;
+    // output_buf[0] = (char)0;
+    sprintf(output_buf, "%d:", millis());
     char return_buf[200];
     reading cur_reading;
     for (int i=0;i<SENSOR_COUNT;i++) {
