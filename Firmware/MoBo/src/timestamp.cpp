@@ -3,8 +3,7 @@
 #include <WiFi.h>
 #include <ezTime.h>
 
-#include "config.h"
-#include "filename.h"
+// #include "config.h"
 
 #ifndef WIFI_SSID
 #error Setup wifi.ini and the wifi_flags (these will be added as build_flags in platformio.ini)
@@ -14,16 +13,21 @@
 #error Setup wifi.ini and the wifi_flags (these will be added as build_flags in platformio.ini)
 #endif
 
-#define STR(x) #x
+#define _STR(x) #x
+#define STRINGIFY(x) _STR(x)
 
-const char* ssid = STR(WIFI_SSID);
-const char* password = STR(WIFI_PASS);
+const char* ssid = STRINGIFY(WIFI_SSID);
+const char* password = STRINGIFY(WIFI_PASS);
 
 // NTP Server to request epoch time
 const char* ntpServer = "de.pool.ntp.org";
 
 // Variable to save current epoch time
 unsigned long epochTime; 
+
+char timestamp_at_boot[60];
+
+String time_now;
 
 // Initialize WiFi
 void initWiFi() {
@@ -37,26 +41,14 @@ void initWiFi() {
   Serial.println(WiFi.localIP());
 }
 
-// Function that gets current epoch time
-unsigned long getTime() {
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return(0);
-  }
-  time(&now);
-  return now;
-}
-
-void gen_file_name(String filename) {
-  initWiFi();
-  waitForSync();
-  Timezone Germany;
-  Germany.setLocation("Europe/Berlin");
-  // time_t epoch_now = now();
-  String time_now = String(now());
-  WiFi.disconnect();
-  WiFi.mode(WIFI_OFF);
-  filename = String("/data-at-" + time_now + ".txt");
+void gen_timestamp(char* start_timestamp){
+    char buffer[3];
+    initWiFi();
+    waitForSync();
+    WiFi.disconnect();
+    WiFi.mode(WIFI_OFF);
+    sprintf(start_timestamp, "%d", now());
+    sprintf(buffer,"%d",ms());
+    strcat(start_timestamp, buffer);
+    sprintf(start_timestamp, "%lld", (atoll(start_timestamp)-millis()));
 }

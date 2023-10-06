@@ -6,7 +6,7 @@
 #include "SPI.h"
 
 #include "config.h"
-#include "filename.h"
+#include "timestamp.h"
 
 
 bool sd_card_present = false;
@@ -14,30 +14,33 @@ bool sd_card_present = false;
 SPIClass spi = SPIClass(VSPI);
 File dataFile;
 
+// char timestamp[60];
+
 String filename;
 
 
-void setup_sdcard(){
-  Serial.println("Setting up SD Card");
-  spi.begin(SCK, MISO, MOSI, CS);
-  if(!SD.begin(CS, spi, 80000000)){
-    Serial.println("Card Mount Failed");
-  }
-  uint8_t cardType = SD.cardType();
+void setup_sdcard(char* timestamp){
+    
+    Serial.println("Setting up SD Card");
+        spi.begin(SCK, MISO, MOSI, CS);
+    if(!SD.begin(CS, spi, 80000000)){
+        Serial.println("Card Mount Failed");
+    }
+    uint8_t cardType = SD.cardType();
 
-  if(cardType == CARD_NONE){
-    Serial.println("No SD card attached, using serial connection");
-    digitalWrite(LED_BLUE, LOW);
-    // while(true) {
-    //
-    // }
-  } else {
+    if(cardType == CARD_NONE){
+        Serial.println("No SD card attached, using serial connection");
+        digitalWrite(LED_BLUE, LOW);
+
+    } else {
       sd_card_present = true;
       Serial.println("Done setting up SD Card");
-      gen_file_name(filename);
-      dataFile = SD.open(filename, FILE_APPEND);
+      // gen_file_name(filename, tmie);
+    filename = String("/data-at-" + String(timestamp) + ".txt");
+    dataFile = SD.open(filename, FILE_APPEND);
   }
 }
+
 
 void write_values(char* data) {
   // Serial.println("Writing values...");
