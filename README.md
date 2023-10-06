@@ -4,5 +4,5 @@
 
 ![General concept](./Documentation/lapcal-concept-handdrawn.png)
 
-TODO: *Add general description and aims of this project
+TODO: *Add general description and aims of this project*
 
