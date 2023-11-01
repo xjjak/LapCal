@@ -35,9 +35,13 @@ let flipButton = [0,50/h,100/w,50/h];
 
 // global variables
 let logs = []; // the actual log
-let mirror = false; // mirror the shown keyboard?
 let suggested_key = [0,0];
+
+// flags
+let mirror = false; // mirror the shown keyboard?
 let bottom_aligned = true;
+let send_to_server = true;
+
 
 // Initialisation
 function setup() {
@@ -145,8 +149,9 @@ function touchStarted(event) {
             if (w*x <= tx && tx <= w*xw &&
                 h*y <= ty - bottom_aligned*(windowHeight-h) &&
                 ty - bottom_aligned*(windowHeight-h) <= h*yh){
-                logs.push(Date.now().toString() + " +" +
-                          fi.toString() + pi.toString());
+                // logs.push(Date.now().toString() + " +" +
+                //           fi.toString() + pi.toString());
+                log_now("+ " + fi.toString() + pi.toString());
                 // re-generate suggested_key if the last one was pressed
                 if (suggested_key[0] == fi && suggested_key[1] == pi)
                     new_suggested_key();
@@ -200,13 +205,28 @@ function touchEnded(event) {
             if (w*x <= tx && tx <= w*xw &&
                 h*y <= ty - bottom_aligned*(windowHeight-h) &&
                 ty - bottom_aligned*(windowHeight-h) <= h*yh){
-                logs.push(Date.now().toString() + " -" +
-                          fi.toString() + pi.toString());
+                // logs.push(Date.now().toString() + " -" +
+                //           fi.toString() + pi.toString());
+                log_now("- " + fi.toString() + pi.toString());
             }
         })
     });
     
     return false;
+}
+
+function log_now(msg) {
+    log_str = Date.now().toString() + " " + msg;
+    logs.push(log_str);
+
+    // Send new message to server
+    fetch("http://192.168.178.103:8080", {
+        method: "POST",
+        body: log_str,
+        headers: {
+            "Content-type": "text/plain; charset=UTF-8"
+        }
+    });
 }
 
 // save log to txt file and clear log
