@@ -8,7 +8,7 @@
 ![General concept](./Documentation/lapcal-concept-handdrawn.png)
 
 
-Building gloves that enable typing like on a 34-key keyboard without an actual physical keyboard using IMUs and machine learning. 
+Building gloves that enable typing on a 34-key keyboard without an actual physical keyboard using IMUs and machine learning. 
  
 
 This work is licensed under a
