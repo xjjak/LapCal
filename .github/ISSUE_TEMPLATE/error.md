@@ -1,7 +1,7 @@
 ---
-name: Fix
-about: Something that needs to be fixed
-title: "[FIX] ..."
+name: Error
+about: Something that needs to be fixed and has never worked before.
+title: "[ERROR] ..."
 labels: bug
 assignees: ''
 
