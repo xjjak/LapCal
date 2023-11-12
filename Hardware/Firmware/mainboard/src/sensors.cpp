@@ -5,6 +5,7 @@
 
 #include "config.h"
 
+unsigned long prev_micros;
 
 MPU6050 Sensors[SENSOR_COUNT];
 bool sensor_presence[SENSOR_COUNT] = {};
@@ -108,7 +109,11 @@ void readFifoBuffer(MPU6050 mpu) {
     // Serial.println("Reading fifo buffer...");
     // Clear the buffer so as we can get fresh values
     // The sensor is running a lot faster than our sample period
+    Serial.printf("Before reset: %d \n", micros() - prev_micros);
+    prev_micros = micros();
     mpu.resetFIFO();
+    Serial.printf("after reset: %d \n", micros() - prev_micros);
+    prev_micros = micros();
 
     // get current FIFO count
     fifoCount = mpu.getFIFOCount();
@@ -116,8 +121,12 @@ void readFifoBuffer(MPU6050 mpu) {
     // wait for correct available data length, should be a VERY short wait
     while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
 
+    Serial.printf("before bytes: %d \n", micros() - prev_micros);
+    prev_micros = micros();
     // read a packet from FIFO
     mpu.getFIFOBytes(fifoBuffer, packetSize);
+    Serial.printf("after bytes: %d \n", micros() - prev_micros);
+    prev_micros = micros();
     // Serial.println("Read buffer.");
 }
 
@@ -154,8 +163,14 @@ reading sense_readings(MPU6050 mpu) {
 void get_all_readings(reading* output) {
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
+            Serial.printf("Before mux: %d \n", micros() - prev_micros);
+            prev_micros = micros();
             tca_select(i);
+            Serial.printf("After mux: %d \n", micros() - prev_micros);
+            prev_micros = micros();
             output[i] = sense_readings(Sensors[i]);
+            Serial.printf("After readings: %d \n", micros() - prev_micros);
+            prev_micros = micros();
             // Serial.println("Got some values");
         }     
     }
@@ -164,7 +179,7 @@ void get_all_readings(reading* output) {
 void format_readings(reading* input, char* output_buf) {
     // char output_buf[1005];
     // output_buf[0] = (char)0;
-    sprintf(output_buf, "%d:", millis());
+    sprintf(output_buf, "%d:", micros());
     char return_buf[200];
     reading cur_reading;
     for (int i=0;i<SENSOR_COUNT;i++) {
