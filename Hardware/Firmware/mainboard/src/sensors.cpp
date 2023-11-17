@@ -104,6 +104,17 @@ int setup_sensor(int id) {
     return 0;
 }
 
+void reset_all_bufs() {
+    for (int i=SENSOR_COUNT-1;i>=0;i--) {
+        if (sensor_presence[i]) {
+            if (i<SENSOR_COUNT-1){
+                tca_select(i);
+            }
+            Sensors[i].resetFIFO();
+        }
+    }
+}
+
 void readFifoBuffer(MPU6050 mpu) {
 
     // Serial.println("Reading fifo buffer...");
@@ -111,7 +122,7 @@ void readFifoBuffer(MPU6050 mpu) {
     // The sensor is running a lot faster than our sample period
     Serial.printf("Before reset: %d \n", micros() - prev_micros);
     prev_micros = micros();
-    mpu.resetFIFO();
+    // mpu.resetFIFO();
     Serial.printf("after reset: %d \n", micros() - prev_micros);
     prev_micros = micros();
 
@@ -161,11 +172,15 @@ reading sense_readings(MPU6050 mpu) {
 }
 
 void get_all_readings(reading* output) {
+    reading_start_micros = micros();
+    reset_all_bufs();
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
             Serial.printf("Before mux: %d \n", micros() - prev_micros);
             prev_micros = micros();
-            tca_select(i);
+            if (i!=0) {
+                tca_select(i);
+            }
             Serial.printf("After mux: %d \n", micros() - prev_micros);
             prev_micros = micros();
             output[i] = sense_readings(Sensors[i]);
