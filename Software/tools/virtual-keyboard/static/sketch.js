@@ -1,6 +1,6 @@
 // constants
 const SCALER_WIDTH = 100;
-
+const IPADDR = "10.4.27.28"
 // default sizes & keyboard measurements
 let w = 734, h = 667;
 let aspectratio = w/h;
@@ -220,7 +220,7 @@ function log_now(msg) {
     logs.push(log_str);
 
     // Send new message to server
-    fetch("http://192.168.178.103:8080", {
+    fetch("http://" + IPADDR + ":8080", {
         method: "POST",
         body: log_str,
         headers: {
