@@ -17,7 +17,6 @@ void set_bat_flag() {
 }
 
 TickTwo timer_battery_check(set_bat_flag, 300000, 0, MILLIS);
-
 // ---------------------
 
 reading all_readings[SENSOR_COUNT];
@@ -27,6 +26,8 @@ unsigned long prev_micros2;
 char all_readings_charbuf[SENSOR_COUNT*201];
 
 char unix_timestamp[60];
+
+TaskHandle_t TaskFifoReset;
 
 void print_headerline(){
 }
@@ -64,9 +65,13 @@ void setup(){
         strcat(headerline, unit_buffer);
     } 
 
+
     write_values(headerline);
     digitalWrite(LED_BLUE, LOW);
     digitalWrite(LED_GREEN, HIGH);
+
+    // ------Parallelization setup------
+    xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, (void*)&task_reset_fifos_flag, 1, &TaskFifoReset, 0);
 
     timer_battery_check.start();
   
