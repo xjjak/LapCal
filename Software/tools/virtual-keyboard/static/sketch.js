@@ -36,6 +36,7 @@ let flipButton = [0,50/h,100/w,50/h];
 // global variables
 let logs = []; // the actual log
 let suggested_key = [0,0];
+let touchPositions = new Map();
 
 // flags
 let mirror = false; // mirror the shown keyboard?
@@ -91,13 +92,15 @@ function draw() {
                 strokeWeight(4);
                 stroke(255,0,0);
             }
-            touches.forEach(touch => { // consider all touches
-                if (w*x <= touch.x && touch.x <= w*xw &&
-                    h*y <= touch.y - bottom_aligned*(windowHeight-h) &&
-                    touch.y - bottom_aligned*(windowHeight-h) <= h*yh){
+
+            for (const [id, touch] of touchPositions) {
+                let [tx, ty] = touch;
+                if (w*x <= tx && tx <= w*xw &&
+                    h*y <= ty - bottom_aligned*(windowHeight-h) &&
+                    ty - bottom_aligned*(windowHeight-h) <= h*yh){
                     fill(0,255,0);
                 }
-            });
+            }
 
             // draw rect
             rect(w*x, bottom_aligned*(windowHeight-h)+h*y, w*key_size[0], h*key_size[1]);
@@ -124,7 +127,8 @@ function draw() {
 function touchStarted(event) {
     let tx = event.changedTouches[0].clientX;
     let ty = event.changedTouches[0].clientY;
-
+    touchPositions.set(event.changedTouches[0].identifier, [tx, ty]);
+    
     // check for save button press
     let [sx,sy,sw,sh] = saveButton;
     if (mirror)
@@ -179,8 +183,8 @@ function mouseDragged() {
 
 // process finalised touch events
 function touchEnded(event) {
-    let tx = event.changedTouches[0].clientX;
-    let ty = event.changedTouches[0].clientY;
+    let [tx, ty] = touchPositions.get(event.changedTouches[0].identifier)
+    touchPositions.delete(event.changedTouches[0].identifier);
 
     // check for flip button press
     let [sx,sy,sw,sh] = flipButton;
