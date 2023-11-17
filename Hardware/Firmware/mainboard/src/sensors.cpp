@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+
 #include <MPU6050_6Axis_MotionApps20.h>
 #include <Wire.h>
 
@@ -25,6 +26,8 @@ VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measure
 VectorFloat gravity;    // [x, y, z]            gravity vector
 float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+                        
+bool task_reset_fifos_flag = true;
 
 // char all_readings_char[SENSOR_COUNT*201];
 
@@ -106,10 +109,28 @@ int setup_sensor(int id) {
 }
 
 void reset_all_bufs() {
+    Serial.println("Resetting all bufs...");
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
+            Serial.print("Resetting sensor: ");
+            Serial.println(i);
             tca_select(i);
             Sensors[i].resetFIFO();
+        }
+    }
+}
+
+void task_fifo_reset(void *flag) {
+    Serial.print("Running on other core: ");
+    Serial.println(xPortGetCoreID());
+    
+    for(;;){
+        if (*((bool *) flag)){
+            Serial.println("Calling buf reset");
+            reset_all_bufs();
+            *(bool*)flag = false;
+            Serial.print("The flag is now: ");
+            Serial.println(*((bool *) flag));
         }
     }
 }
@@ -119,6 +140,9 @@ void readFifoBuffer(MPU6050 mpu) {
     // Serial.println("Reading fifo buffer...");
     // Clear the buffer so as we can get fresh values
     // The sensor is running a lot faster than our sample period
+    Serial.println("The global flag is: ");
+    Serial.println(task_reset_fifos_flag);
+    while(task_reset_fifos_flag);
     Serial.printf("Before reset: %d \n", micros() - prev_micros);
     prev_micros = micros();
     // mpu.resetFIFO();
@@ -178,7 +202,7 @@ reading sense_readings(MPU6050 mpu) {
 
 void get_all_readings(reading* output) {
     reading_start_micros = micros();
-    reset_all_bufs();
+    // reset_all_bufs();
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
             Serial.printf("Before mux: %d \n", micros() - prev_micros);
@@ -192,6 +216,7 @@ void get_all_readings(reading* output) {
             // Serial.println("Got some values");
         }     
     }
+    task_reset_fifos_flag = true;
     Serial.printf("All readings: %d \n", micros() - reading_start_micros);
 }
 
