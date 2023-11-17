@@ -106,11 +106,9 @@ int setup_sensor(int id) {
 }
 
 void reset_all_bufs() {
-    for (int i=SENSOR_COUNT-1;i>=0;i--) {
+    for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
-            if (i<SENSOR_COUNT-1){
-                tca_select(i);
-            }
+            tca_select(i);
             Sensors[i].resetFIFO();
         }
     }
@@ -185,9 +183,7 @@ void get_all_readings(reading* output) {
         if (sensor_presence[i]) {
             Serial.printf("Before mux: %d \n", micros() - prev_micros);
             prev_micros = micros();
-            if (i!=0) {
-                tca_select(i);
-            }
+            tca_select(i);
             Serial.printf("After mux: %d \n", micros() - prev_micros);
             prev_micros = micros();
             output[i] = sense_readings(Sensors[i]);
