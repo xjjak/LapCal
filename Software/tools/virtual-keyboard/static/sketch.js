@@ -46,7 +46,7 @@ let send_to_server = true;
 // Initialisation
 function setup() {
     createCanvas(windowWidth, windowHeight);
-
+    
     // set colors per finger
     finger_coloring = [
         color("#cdb4db"),
@@ -134,7 +134,7 @@ function touchStarted(event) {
         saveToFile();
         return false;
     }
-
+    
     // check if any key is touched and log press
     kb_positions.forEach((finger, fi) => {
         finger.forEach((pos, pi) => {
@@ -149,8 +149,6 @@ function touchStarted(event) {
             if (w*x <= tx && tx <= w*xw &&
                 h*y <= ty - bottom_aligned*(windowHeight-h) &&
                 ty - bottom_aligned*(windowHeight-h) <= h*yh){
-                // logs.push(Date.now().toString() + " +" +
-                //           fi.toString() + pi.toString());
                 log_now("+ " + fi.toString() + pi.toString());
                 // re-generate suggested_key if the last one was pressed
                 if (suggested_key[0] == fi && suggested_key[1] == pi)
@@ -193,7 +191,7 @@ function touchEnded(event) {
         flip();
         return false;
     }
-
+    
     // check if any key is touched and log press    
     kb_positions.forEach((finger, fi) => {
         finger.forEach((pos, pi) => {
@@ -205,8 +203,6 @@ function touchEnded(event) {
             if (w*x <= tx && tx <= w*xw &&
                 h*y <= ty - bottom_aligned*(windowHeight-h) &&
                 ty - bottom_aligned*(windowHeight-h) <= h*yh){
-                // logs.push(Date.now().toString() + " -" +
-                //           fi.toString() + pi.toString());
                 log_now("- " + fi.toString() + pi.toString());
             }
         })
