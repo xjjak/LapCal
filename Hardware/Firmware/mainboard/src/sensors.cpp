@@ -6,6 +6,7 @@
 #include "config.h"
 
 unsigned long prev_micros;
+unsigned long reading_start_micros;
 
 MPU6050 Sensors[SENSOR_COUNT];
 bool sensor_presence[SENSOR_COUNT] = {};
@@ -126,8 +127,14 @@ void readFifoBuffer(MPU6050 mpu) {
     Serial.printf("after reset: %d \n", micros() - prev_micros);
     prev_micros = micros();
 
+    Serial.printf("Before get: %d \n", micros() - prev_micros);
+    prev_micros = micros();
+
     // get current FIFO count
     fifoCount = mpu.getFIFOCount();
+
+    Serial.printf("after get: %d \n", micros() - prev_micros);
+    prev_micros = micros();
     
     // wait for correct available data length, should be a VERY short wait
     while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
@@ -189,6 +196,7 @@ void get_all_readings(reading* output) {
             // Serial.println("Got some values");
         }     
     }
+    Serial.printf("All readings: %d \n", micros() - reading_start_micros);
 }
 
 void format_readings(reading* input, char* output_buf) {
