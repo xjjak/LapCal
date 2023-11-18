@@ -21,8 +21,6 @@ TickTwo timer_battery_check(set_bat_flag, 300000, 0, MILLIS);
 
 reading all_readings[SENSOR_COUNT];
 
-unsigned long prev_micros2;
-
 char all_readings_charbuf[SENSOR_COUNT*201];
 
 char unix_timestamp[60];
@@ -89,11 +87,8 @@ void setup(){
 void loop(){
     // Serial.println("Sensing.");
     get_all_readings(all_readings);
-    prev_micros2 = micros();
-
     format_readings(all_readings, all_readings_charbuf);
     write_values(all_readings_charbuf);
-
 
     // Serial.println("Checking bat_stat");
     if (check_bat_flag){
@@ -108,6 +103,4 @@ void loop(){
     // Serial.println("Loop done.");
     timer_battery_check.update();
 
-    Serial.printf("after writing: %d \n", micros() - prev_micros2);
-          
 }
