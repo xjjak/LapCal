@@ -205,8 +205,6 @@ reading sense_readings(MPU6050 mpu) {
 }
 
 void get_all_readings(reading* output) {
-    reading_start_micros = micros();
-    // reset_all_bufs();
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
             __TIMING("Before mux: %d \n");
@@ -218,7 +216,6 @@ void get_all_readings(reading* output) {
         }     
     }
     xEventGroupSetBits(FifoResetEventGroup, BIT_0);
-    Serial.printf("All readings: %d \n", micros() - reading_start_micros);
 }
 
 void format_readings(reading* input, char* output_buf) {
