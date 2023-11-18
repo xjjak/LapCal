@@ -4,4 +4,3 @@ int setup_sensor(int id);
 void get_all_readings(reading* output);
 void format_readings(reading* input, char* output_buf);
 void task_fifo_reset(void *flag);
-extern bool task_reset_fifos_flag;
