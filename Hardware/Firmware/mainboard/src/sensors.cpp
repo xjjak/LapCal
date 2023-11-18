@@ -128,7 +128,7 @@ void reset_all_bufs() {
     }
 }
 
-void task_fifo_reset(void *flag) {
+void task_fifo_reset(void *pvParameters) {
     const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
     for(;;){
         if (xEventGroupWaitBits(FifoResetEventGroup, BIT_0, pdFALSE, pdTRUE, xTicksToWait) == pdPASS){
