@@ -12,6 +12,9 @@
 unsigned long prev_micros;
 unsigned long reading_start_micros;
 
+#define __TIMING(format)   if (TIMING_ENABLED) {Serial.printf(format, micros()-prev_micros); prev_micros = micros();}
+const int TIMING_ENABLED = 0;
+
 MPU6050 Sensors[SENSOR_COUNT];
 bool sensor_presence[SENSOR_COUNT] = {};
 
@@ -157,19 +160,18 @@ void readFifoBuffer(MPU6050 mpu) {
     // get current FIFO count
     fifoCount = mpu.getFIFOCount();
 
-    Serial.printf("after get: %d \n", micros() - prev_micros);
-    prev_micros = micros();
+    __TIMING("after get: %d \n");
     
     // wait for correct available data length, should be a VERY short wait
     while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
 
-    Serial.printf("before bytes: %d \n", micros() - prev_micros);
-    prev_micros = micros();
+    __TIMING("before bytes: %d \n");
+
     // read a packet from FIFO
     mpu.getFIFOBytes(fifoBuffer, packetSize);
-    Serial.printf("after bytes: %d \n", micros() - prev_micros);
-    prev_micros = micros();
-    // Serial.println("Read buffer.");
+
+    __TIMING("after bytes (t) : %d \n");
+
 }
 
 reading sense_readings(MPU6050 mpu) {
@@ -207,14 +209,11 @@ void get_all_readings(reading* output) {
     // reset_all_bufs();
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
-            Serial.printf("Before mux: %d \n", micros() - prev_micros);
-            prev_micros = micros();
+            __TIMING("Before mux: %d \n");
             tca_select(i);
-            Serial.printf("After mux: %d \n", micros() - prev_micros);
-            prev_micros = micros();
+            __TIMING("After mux: %d \n");
             output[i] = sense_readings(Sensors[i]);
-            Serial.printf("After readings: %d \n", micros() - prev_micros);
-            prev_micros = micros();
+            __TIMING("After readings: %d \n");
             // Serial.println("Got some values");
         }     
     }
