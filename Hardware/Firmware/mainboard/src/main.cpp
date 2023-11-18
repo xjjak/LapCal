@@ -71,7 +71,7 @@ void setup(){
     digitalWrite(LED_GREEN, HIGH);
 
     // ------Parallelization setup------
-    xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, (void*)&task_reset_fifos_flag, 1, &TaskFifoReset, 0);
+    xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
 
     timer_battery_check.start();
   

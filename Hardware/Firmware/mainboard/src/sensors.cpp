@@ -6,6 +6,9 @@
 
 #include "config.h"
 
+#define BIT_0 (1<<0)
+
+
 unsigned long prev_micros;
 unsigned long reading_start_micros;
 
@@ -28,6 +31,9 @@ float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
                         
 bool task_reset_fifos_flag = true;
+
+EventGroupHandle_t FifoResetEventGroup = xEventGroupCreate();
+EventBits_t uxBits = xEventGroupSetBits(FifoResetEventGroup, BIT_0);
 
 // char all_readings_char[SENSOR_COUNT*201];
 
@@ -109,11 +115,10 @@ int setup_sensor(int id) {
 }
 
 void reset_all_bufs() {
-    Serial.println("Resetting all bufs...");
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
-            Serial.print("Resetting sensor: ");
-            Serial.println(i);
+            // Serial.print("Resetting sensor: ");
+            // Serial.println(i);
             tca_select(i);
             Sensors[i].resetFIFO();
         }
@@ -121,16 +126,13 @@ void reset_all_bufs() {
 }
 
 void task_fifo_reset(void *flag) {
-    Serial.print("Running on other core: ");
-    Serial.println(xPortGetCoreID());
-    
+    const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
     for(;;){
-        if (*((bool *) flag)){
-            Serial.println("Calling buf reset");
+        if (xEventGroupWaitBits(FifoResetEventGroup, BIT_0, pdFALSE, pdTRUE, xTicksToWait) == pdPASS){
             reset_all_bufs();
-            *(bool*)flag = false;
-            Serial.print("The flag is now: ");
-            Serial.println(*((bool *) flag));
+            xEventGroupClearBits(FifoResetEventGroup, BIT_0);
+        } else {
+            Serial.println("Something went wrong waiting for events");
         }
     }
 }
@@ -140,14 +142,14 @@ void readFifoBuffer(MPU6050 mpu) {
     // Serial.println("Reading fifo buffer...");
     // Clear the buffer so as we can get fresh values
     // The sensor is running a lot faster than our sample period
-    Serial.println("The global flag is: ");
-    Serial.println(task_reset_fifos_flag);
-    while(task_reset_fifos_flag);
-    Serial.printf("Before reset: %d \n", micros() - prev_micros);
-    prev_micros = micros();
-    // mpu.resetFIFO();
+
     Serial.printf("after reset: %d \n", micros() - prev_micros);
     prev_micros = micros();
+
+    uxBits = xEventGroupGetBits(FifoResetEventGroup);
+    while((uxBits & BIT_0) != 0){
+        uxBits = xEventGroupGetBits(FifoResetEventGroup);
+    }
 
     Serial.printf("Before get: %d \n", micros() - prev_micros);
     prev_micros = micros();
@@ -216,7 +218,7 @@ void get_all_readings(reading* output) {
             // Serial.println("Got some values");
         }     
     }
-    task_reset_fifos_flag = true;
+    xEventGroupSetBits(FifoResetEventGroup, BIT_0);
     Serial.printf("All readings: %d \n", micros() - reading_start_micros);
 }
 
