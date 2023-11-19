@@ -5,7 +5,7 @@
 
 *by Emil² - Ξ*
 
-![General concept](./Documentation/lapcal-concept-handdrawn.png)
+![General concept](./Documentation/lapcal-concept-handdrawn-smaller.png)![Prototype](./Documentation/lapcal-first-protoype.png)
 
 
 Building gloves that enable typing on a 34-key keyboard without an actual physical keyboard using IMUs and machine learning. 
