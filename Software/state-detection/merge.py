@@ -31,7 +31,7 @@ with open(os.path.join(dataset_directory, "data.txt")) as f:
             readings_with_time += [(last_milliseconds+1, line)]
         else:
             reading = line.split(":")[:-1]
-            last_milliseconds = milliseconds + int(reading[0])
+            last_milliseconds = milliseconds + int(reading[0])//1000
             readings_with_time += [(last_milliseconds, ":".join(reading[1:]))]
 
 clicks_with_time  = []
