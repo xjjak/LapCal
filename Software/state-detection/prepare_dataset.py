@@ -6,8 +6,8 @@ N_READINGS = 3 # number of readings considered by model
 N_SENSORS = 6
 N_VALUES = 3 + 3 + 3 # 3 acc + 3 gyr sin + 3 gyr cos
 N_STATES = 17 # depends on keyboard
-TARGET_NAMES = ["00","01","02", "10","11","12", "20","21","22",
-                "30","31","32", "40","41","42", "50","51"]
+TARGET_NAMES = ["00","01","02",                 "10","11","12",  "20","21","22",
+                "30","31","32","33","34","35",  "40","41","42",  "50","51"]
 
 def readings_to_data(reading):
     sensors = reading.split(":")
