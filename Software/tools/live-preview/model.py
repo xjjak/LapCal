@@ -1,6 +1,6 @@
 import joblib
 import tensorflow as tf
-from tf import keras
+from tensorflow import keras
 
 class Model:
     def __init__(self):
