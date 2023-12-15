@@ -22,9 +22,10 @@ class LivePreview:
                 self.feature_extractor.feed(line)
 
         features = self.feature_extractor.get_features()
-        self.output = self.model.predict(features)
+        self.output = list(self.model.predict(features))
         return self.output
 
     def preview(self):
+        print("Starting preview...")
         while True:
             print(self.next_output())
