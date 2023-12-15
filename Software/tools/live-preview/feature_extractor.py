@@ -19,15 +19,19 @@ class TrigFeatureExtractor(FeatureExtractor):
         self.ready = False
         self.readings = [None]*n_readings
         self.head = 0
+        self.output = [0]*17
 
         
     def feed(self, line, output=None):
-        sensors = line.split(":")
+        sensors = line.strip().split(":")
         if len(sensors) != 7:
             return False
 
+        if output:
+            self.output = output[:]
+        
         for (idx, sensor) in enumerate(sensors[1:]):
-            self.readings[self.head] = [0]*(6*9*len(self.readings) + 17)
+            self.readings[self.head] = [0]*(6*9)
             reading = self.readings[self.head]
             
             if sensor != "-":
@@ -41,10 +45,10 @@ class TrigFeatureExtractor(FeatureExtractor):
             reading[idx*9 + 3:idx*9 + 6] = [sin(float(val.strip())) for val in vals[3:]]
             reading[idx*9 + 6:idx*9 + 9] = [cos(float(val.strip())) for val in vals[3:]]
 
-        if self.readings[(self.head + 1) % len(self.readings)] != None:
-            self.ready = True
-            
         self.head = (self.head + 1) % len(self.readings)
+
+        if self.readings[self.head] != None:
+            self.ready = True
             
 
     def get_features(self):
@@ -54,6 +58,7 @@ class TrigFeatureExtractor(FeatureExtractor):
             self.readings[self.head - 2],
             self.readings[self.head - 1],
             self.readings[self.head],
+            self.output
         ]
         
         return [
