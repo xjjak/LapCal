@@ -221,16 +221,16 @@ void get_all_readings(reading* output) {
 void format_readings(reading* input, char* output_buf) {
     // char output_buf[1005];
     // output_buf[0] = (char)0;
-    sprintf(output_buf, "%d:", micros());
+    sprintf(output_buf, "%d", micros());
     char return_buf[200];
     reading cur_reading;
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i]) {
             cur_reading = input[i];
-            sprintf(return_buf,"%.2f;%.2f;%.2f;%.2f;%.2f;%.2f:", cur_reading.ax,cur_reading.ay,cur_reading.az,cur_reading.gx,cur_reading.gy,cur_reading.gz);
+            sprintf(return_buf,":%.2f;%.2f;%.2f;%.2f;%.2f;%.2f", cur_reading.ax,cur_reading.ay,cur_reading.az,cur_reading.gx,cur_reading.gy,cur_reading.gz);
             strcat(output_buf, return_buf);
         } else {
-            strcat(output_buf, "-:");
+            strcat(output_buf, ":-");
         }
     }
 }
