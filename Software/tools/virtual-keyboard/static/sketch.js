@@ -44,6 +44,21 @@ let bottom_aligned = true;
 let send_to_server = true;
 
 
+// auxiliary functions
+const onButtonClick = (button, func, ...args) => (tx, ty) => {
+    let [sx,sy,sw,sh] = button;
+    if (mirror)
+        sx = 1-(sx+sw);
+    if (sx*w <= tx && tx <= (sx+sw)*w &&
+        sy*h <= ty && ty <= (sy+sh)*h) {
+        func(...args);
+        return true;
+    } else {
+        return false;
+    }
+};
+
+
 // Initialisation
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -128,16 +143,12 @@ function touchStarted(event) {
     let tx = event.changedTouches[0].clientX;
     let ty = event.changedTouches[0].clientY;
     touchPositions.set(event.changedTouches[0].identifier, [tx, ty]);
-    
-    // check for save button press
-    let [sx,sy,sw,sh] = saveButton;
-    if (mirror)
-        sx = 1-(sx+sw);
-    if (sx*w <= tx && tx <= (sx+sw)*w &&
-        sy*h <= ty && ty <= (sy+sh)*h) {
-        saveToFile();
+
+    // check for extra buttons
+    if (onButtonClick(saveButton, saveToFile)(tx, ty))
         return false;
-    }
+    if (onButtonClick(flipButton, () => {})(tx, ty))
+        return false;
     
     // check if any key is touched and log press
     kb_positions.forEach((finger, fi) => {
@@ -186,15 +197,11 @@ function touchEnded(event) {
     let [tx, ty] = touchPositions.get(event.changedTouches[0].identifier)
     touchPositions.delete(event.changedTouches[0].identifier);
 
-    // check for flip button press
-    let [sx,sy,sw,sh] = flipButton;
-    if (mirror)
-        sx = 1-(sx+sw);
-    if (sx*w <= tx && tx <= (sx+sw)*w &&
-        sy*h <= ty && ty <= (sy+sh)*h) {
-        flip();
+    // check for extra buttons
+    if (onButtonClick(saveButton, () => {})(tx, ty))
         return false;
-    }
+    if (onButtonClick(flipButton, flip)(tx, ty))
+        return false;
     
     // check if any key is touched and log press    
     kb_positions.forEach((finger, fi) => {
