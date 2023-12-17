@@ -146,16 +146,14 @@ void readFifoBuffer(MPU6050 mpu) {
     // Clear the buffer so as we can get fresh values
     // The sensor is running a lot faster than our sample period
 
-    Serial.printf("after reset: %d \n", micros() - prev_micros);
-    prev_micros = micros();
+    __TIMING("after reset: %d \n");
 
     uxBits = xEventGroupGetBits(FifoResetEventGroup);
     while((uxBits & BIT_0) != 0){
         uxBits = xEventGroupGetBits(FifoResetEventGroup);
     }
 
-    Serial.printf("Before get: %d \n", micros() - prev_micros);
-    prev_micros = micros();
+    __TIMING("Before get: %d \n");
 
     // get current FIFO count
     fifoCount = mpu.getFIFOCount();
