@@ -131,6 +131,10 @@ function draw() {
     if (mirror)
         sx = 1-(sx+sw);
     rect(sx*w,sy*h,sw*w,sh*h);
+
+    // fix hanging press
+    if (touches.length == 0)
+        touchPositions = new Map();
 }
 
 // process initiated touch events
