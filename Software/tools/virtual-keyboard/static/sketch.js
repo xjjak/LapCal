@@ -1,6 +1,6 @@
 // constants
 const SCALER_WIDTH = 100;
-const IPADDR = "10.4.27.28"
+
 // default sizes & keyboard measurements
 let w = 734, h = 667;
 let aspectratio = w/h;
