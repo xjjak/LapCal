@@ -33,7 +33,8 @@ String time_now;
 void initWiFi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi ..");
+  Serial.print("Connecting to WiFi: ");
+  Serial.println(ssid);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print('.');
     delay(1000);
