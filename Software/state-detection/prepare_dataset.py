@@ -15,12 +15,16 @@ def readings_to_data(reading):
     data = []
     
     for sensor in reading.split(":"):
-        values = sensor.split(";")
-        data.extend(
-            [float(value) for value in values[:3]] +
-            [sin(float(value)) for value in values[3:]] +
-            [cos(float(value)) for value in values[3:]]
-        )
+        # sensor malfunctioning
+        if sensor == "-":
+            data.extend([0]*9)
+        else:
+            values = sensor.split(";")
+            data.extend(
+                [float(value) for value in values[:3]] +
+                [sin(float(value)) for value in values[3:]] +
+                [cos(float(value)) for value in values[3:]]
+            )
 
     return data
 
