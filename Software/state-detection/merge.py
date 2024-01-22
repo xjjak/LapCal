@@ -13,9 +13,11 @@ else:
     print("No directory specified.")
     exit()
 
-
+warmup_time = 100
+    
 milliseconds = 0
 readings_with_time = []
+minimum_milliseconds = None
 
 # read readings from data.txt
 with open(os.path.join(dataset_directory, "data.txt")) as f:
@@ -30,21 +32,30 @@ with open(os.path.join(dataset_directory, "data.txt")) as f:
         if "t" in line:
             readings_with_time += [(last_milliseconds+1, line)]
         else:
-            reading = line.split(":")[:-1]
+            reading = line.split(":")
             last_milliseconds = milliseconds + int(reading[0])//1000
+            minimum_milliseconds = minimum_milliseconds or last_milliseconds
             readings_with_time += [(last_milliseconds, ":".join(reading[1:]))]
 
 clicks_with_time  = []
 
 # read clicks from clicks.txt
 with open(os.path.join(dataset_directory, "clicks.txt")) as f:
+    past_start = False
+    
     for line in f.read().strip().split("\n"):
         click = line.split()
-        clicks_with_time += [(int(click[0])+125, " ".join(click[1:]))]
+        time = int(click[0])+125
+        
+        if time > minimum_milliseconds + warmup_time and click[1] == "+":
+            past_start = True
+            
+        if past_start:
+            clicks_with_time += [(time, " ".join(click[1:]))]
 
 
 # join readings and clicks
-joined = sorted(readings_with_time +  clicks_with_time)
+joined = sorted(readings_with_time + clicks_with_time)
 
 # write result to joined.txt
 with open(os.path.join(dataset_directory, "joined.txt"), "w") as f:
