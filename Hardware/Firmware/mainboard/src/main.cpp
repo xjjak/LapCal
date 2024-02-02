@@ -42,10 +42,6 @@ void setup(){
     char headerline[500];
     headerline[0] = (char)0;
 
-
-    Serial.println("Setting up BLE.");
-    // ble.begin("BleSerialTest");
-
     Serial.println("Initialising i2c");
     setup_i2c(SDA, SCL);
     
@@ -70,7 +66,6 @@ void setup(){
     // sprintf(headerline, "%d", unix_timestamp);
     strcat(headerline, unix_timestamp);
     setup_sdcard(unix_timestamp);
-    
     
     write_values(headerline);
     digitalWrite(LED_BLUE, LOW);
