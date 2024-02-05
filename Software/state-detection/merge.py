@@ -2,6 +2,7 @@ import sys
 import os
 import numpy as np
 import joblib
+from sklearn.model_selection import train_test_split
 from prepare_dataset import prepare_dataset
 
 # check if dataset directory was provided
@@ -63,5 +64,18 @@ with open(os.path.join(dataset_directory, "joined.txt"), "w") as f:
         f.write(i[1]+"\n")
 
 
-dataset = prepare_dataset(readings_with_time, clicks_with_time)
+x, y = prepare_dataset(readings_with_time, clicks_with_time)
+
+# split into train, dev and test distribution
+x_train, x_dev, y_train, y_dev = train_test_split(
+    x, y, test_size=0.3, random_state=25
+)
+x_dev, x_test, y_dev, y_test = train_test_split(
+    x_dev, y_dev, test_size=0.4, random_state=16
+)
+
+dataset = (x_train, y_train, x_dev, y_dev, x_test, y_test)
+dataset_full = (x, y)
+
 joblib.dump(dataset, os.path.join(dataset_directory, "dataset.joblib"))
+joblib.dump(dataset_full, os.path.join(dataset_directory, "dataset-full.joblib"))
