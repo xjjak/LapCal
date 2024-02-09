@@ -37,11 +37,27 @@ struct offsets {
     int xa, ya, za, xg, yg, zg;
 };
 
-const offsets mpu_offsets[] = {
-    {-262, -2994, 1711, -174, 214, 46},
-    {-6018, 1394, 1385, 66, -86, 35},
-    {-3296, 434, 1879, 377, -178, -6},
-    {-889, -4586, 1050, 117, -242, 54},
-    {2071, -3990, 1582, -42, 119, 58},
-    {-2539, -2304, 372, 90, 3, 18},
-};
+#ifndef RIGHT_HAND
+#error Specify hand.
+#endif
+
+#if RIGHT_HAND
+    const offsets mpu_offsets[] = {
+        {-262, -2994, 1711, -174, 214, 46}, // Thumb
+        {-6018, 1394, 1385, 66, -86, 35}, // Index
+        {-3296, 434, 1879, 377, -178, -6}, // Middle
+        {-889, -4586, 1050, 117, -242, 54}, // Ring 
+        {2071, -3990, 1582, -42, 119, 58}, // Pinky
+        {-2539, -2304, 372, 90, 3, 18}, // Onboard
+    };
+#else
+    // Remember: this config is also in reverse order if sensors_array is switched
+    const offsets mpu_offsets[] = {
+        {2071, -3990, 1582, -42, 119, 58}, // Thumb
+        {-889, -4586, 1050, 117, -242, 54}, // Index
+        {-3296, 434, 1879, 377, -178, -6}, // Middle
+        {-6018, 1394, 1385, 66, -86, 35}, // Ring
+        {-262, -2994, 1711, -174, 214, 46}, // Pinky
+        {-2539, -2304, 372, 90, 3, 18}, // Onboard
+    };
+#endif
