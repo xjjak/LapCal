@@ -16,7 +16,7 @@ unsigned long reading_start_micros;
 const int TIMING_ENABLED = 0;
 
 MPU6050 Sensors[SENSOR_COUNT];
-bool sensor_presence[SENSOR_COUNT] = {};
+int sensor_presence[SENSOR_COUNT] = {};
 
 // MPU control/status vars
 uint8_t devStatus;      // return status after each device operation (0 = success, !0 = error)
@@ -54,6 +54,11 @@ void tca_select(uint8_t bus){
   Wire.endTransmission();
 }
 
+void select_sensor(int id){
+    // Serial.println(sensor_presence[id]);
+    tca_select(sensor_presence[id]);
+}
+
 bool mpu_present(){
     Wire.beginTransmission(0x68);
     byte error;
@@ -66,11 +71,11 @@ int setup_sensor(int id) {
     Serial.print("Setting up Sensor: ");Serial.println(id);
 
 
-    tca_select(id);
+    select_sensor(id);
 
     if (!mpu_present()){
         Serial.println("Nothing there.");
-        sensor_presence[id] = false;
+        sensor_presence[id] = -1;
         return 1;
     }
 
@@ -102,7 +107,7 @@ int setup_sensor(int id) {
 
         // get expected DMP packet size for later comparison
         packetSize = mpu.dmpGetFIFOPacketSize();
-        sensor_presence[id] = true;
+        // sensor_presence[id] = true;
     } else {
         // ERROR!
         // 1 = initial memory load failed
@@ -111,18 +116,43 @@ int setup_sensor(int id) {
         Serial.print(F("DMP Initialization failed (code "));
         Serial.print(devStatus);
         Serial.println(F(")"));
+        sensor_presence[id] = -1;
         return 1;
     }
 
     return 0;
 }
 
+void setup_sensors() {
+    if (RIGHT_HAND != 1) {
+        sensor_presence[0] = 0;
+        sensor_presence[1] = 1;
+        sensor_presence[2] = 2;
+        sensor_presence[3] = 3;
+        sensor_presence[4] = 4;
+        sensor_presence[5] = 5;
+    } else {
+        sensor_presence[0] = 4;
+        sensor_presence[1] = 3;
+        sensor_presence[2] = 2;
+        sensor_presence[3] = 1;
+        sensor_presence[4] = 0;
+        sensor_presence[5] = 5;
+    }
+
+    for (int i=0;i<SENSOR_COUNT;i++) {
+        if (setup_sensor(i)) {
+            Serial.println("--------WARNING: A SENSOR FAILED-------");
+        }
+   } 
+}
+
 void reset_all_bufs() {
     for (int i=0;i<SENSOR_COUNT;i++) {
-        if (sensor_presence[i]) {
+        if (sensor_presence[i] != -1) {
             // Serial.print("Resetting sensor: ");
             // Serial.println(i);
-            tca_select(i);
+            select_sensor(i);
             Sensors[i].resetFIFO();
         }
     }
@@ -204,9 +234,9 @@ reading sense_readings(MPU6050 mpu) {
 
 void get_all_readings(reading* output) {
     for (int i=0;i<SENSOR_COUNT;i++) {
-        if (sensor_presence[i]) {
+        if (sensor_presence[i] != -1) {
             __TIMING("Before mux: %d \n");
-            tca_select(i);
+            select_sensor(i);
             __TIMING("After mux: %d \n");
             output[i] = sense_readings(Sensors[i]);
             __TIMING("After readings: %d \n");
@@ -223,7 +253,7 @@ void format_readings(reading* input, char* output_buf) {
     char return_buf[200];
     reading cur_reading;
     for (int i=0;i<SENSOR_COUNT;i++) {
-        if (sensor_presence[i]) {
+        if (sensor_presence[i] != (-1)) {
             cur_reading = input[i];
             sprintf(return_buf,":%.2f;%.2f;%.2f;%.2f;%.2f;%.2f", cur_reading.ax,cur_reading.ay,cur_reading.az,cur_reading.gx,cur_reading.gy,cur_reading.gz);
             strcat(output_buf, return_buf);
