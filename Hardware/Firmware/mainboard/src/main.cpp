@@ -42,28 +42,28 @@ void setup(){
     char headerline[500];
     headerline[0] = (char)0;
 
+    Serial.println("Initialising i2c");
+    setup_i2c(SDA, SCL);
+    
+    // ------SETUP SENSORS-------
+    Serial.println("Setting up Sensors");
+
+    setup_sensors();
+    
     // ------SETUP SD------------
     gen_timestamp(unix_timestamp);
     Serial.println(unix_timestamp);
     // sprintf(headerline, "%d", unix_timestamp);
     strcat(headerline, unix_timestamp);
     setup_sdcard(unix_timestamp);
-
-    Serial.println("Initialising i2c");
-    setup_i2c(SDA, SCL);
-
-    // ------SETUP SENSORS-------
-    Serial.println("Setting up Sensors");
-
-    setup_sensors();
-
+    
     write_values(headerline);
     digitalWrite(LED_BLUE, LOW);
     digitalWrite(LED_GREEN, HIGH);
-
+    
     // ------Parallelization setup------
     xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
-
+    
     timer_battery_check.start();
   
     // ---- TIME SINGLE CYCLE ----
