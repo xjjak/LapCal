@@ -144,7 +144,7 @@ void setup_sensors() {
         if (setup_sensor(i)) {
             Serial.println("--------WARNING: A SENSOR FAILED-------");
         }
-   } 
+   }
 }
 
 void reset_all_bufs() {
