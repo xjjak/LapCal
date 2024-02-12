@@ -218,15 +218,22 @@ reading sense_readings(MPU6050 mpu) {
     // float yaw = ypr[0]* 180/M_PI;
     // float pitch = ypr[1]* 180/M_PI;
     // float roll = ypr[2]* 180/M_PI;
-    output.ax = aaReal.x;
-    output.ay = aaReal.y;
-    output.az = aaReal.z;
     // output.gx = ypr[0]* 180/M_PI;
     // output.gy = ypr[1]* 180/M_PI;
     // output.gz = ypr[2]* 180/M_PI;
+    if (RIGHT_HAND == 1) {
+        output.ax = aaReal.x * -1;
+        output.ay = aaReal.y * -1;
+        output.gy = ypr[1] * -1;
+        output.gz = ypr[2] * -1;
+    } else {
+        output.ax = aaReal.x;
+        output.ay = aaReal.y;
+        output.gy = ypr[1];
+        output.gz = ypr[2];
+    }
     output.gx = ypr[0];
-    output.gy = ypr[1];
-    output.gz = ypr[2];
+    output.az = aaReal.z;
 
     // Serial.println("Returning values...");
     return output;
