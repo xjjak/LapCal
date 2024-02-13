@@ -47,18 +47,8 @@ void setup(){
     
     // ------SETUP SENSORS-------
     Serial.println("Setting up Sensors");
-    char unit_buffer[30];
-    for (int i=0;i<SENSOR_COUNT;i++) {
-        if (setup_sensor(i)) {
-            Serial.println("--------WARNING: A SENSOR FAILED-------");
-            digitalWrite(LED_GREEN, HIGH);
-            // while (1){
-            //
-            // }
-        }
-        sprintf(unit_buffer, ":g%dx;g%dy;g%dz;a%dy;a%dp;a%dr", i,i,i,i,i,i);
-        strcat(headerline, unit_buffer);
-    } 
+
+    setup_sensors();
     
     // ------SETUP SD------------
     gen_timestamp(unix_timestamp);
