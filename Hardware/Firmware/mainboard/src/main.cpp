@@ -62,7 +62,10 @@ void setup(){
     digitalWrite(LED_GREEN, HIGH);
     
     // ------Parallelization setup------
-    xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
+    if (MULT_CORE){
+        xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
+        Serial.println("Parallelization enabled.");
+    }
     
     timer_battery_check.start();
   

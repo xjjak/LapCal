@@ -178,9 +178,11 @@ void readFifoBuffer(MPU6050 mpu) {
 
     __TIMING("after reset: %d \n");
 
-    uxBits = xEventGroupGetBits(FifoResetEventGroup);
-    while((uxBits & BIT_0) != 0){
+    if (MULT_CORE){
         uxBits = xEventGroupGetBits(FifoResetEventGroup);
+        while((uxBits & BIT_0) != 0){
+            uxBits = xEventGroupGetBits(FifoResetEventGroup);
+        }
     }
 
     __TIMING("Before get: %d \n");
@@ -250,7 +252,11 @@ void get_all_readings(reading* output) {
             // Serial.println("Got some values");
         }     
     }
-    xEventGroupSetBits(FifoResetEventGroup, BIT_0);
+    if (!MULT_CORE){
+        reset_all_bufs();
+    } else {
+        xEventGroupSetBits(FifoResetEventGroup, BIT_0);
+    }
 }
 
 void format_readings(reading* input, char* output_buf) {
