@@ -41,6 +41,11 @@ struct offsets {
 #error Specify hand.
 #endif
 
+#ifndef MULT_CORE
+#define MULT_CORE 1
+#endif 
+
+
 #if RIGHT_HAND
     const offsets mpu_offsets[] = {
         {-262, -2994, 1711, -174, 214, 46}, // Thumb
