@@ -42,35 +42,28 @@ void setup(){
     char headerline[500];
     headerline[0] = (char)0;
 
+    Serial.println("Initialising i2c");
+    setup_i2c(SDA, SCL);
+    
+    // ------SETUP SENSORS-------
+    Serial.println("Setting up Sensors");
+
+    setup_sensors();
+    
     // ------SETUP SD------------
     gen_timestamp(unix_timestamp);
     Serial.println(unix_timestamp);
     // sprintf(headerline, "%d", unix_timestamp);
     strcat(headerline, unix_timestamp);
     setup_sdcard(unix_timestamp);
-
-    Serial.println("Initialising i2c");
-    setup_i2c(SDA, SCL);
-
-    // ------SETUP SENSORS-------
-    Serial.println("Setting up Sensors");
-    char unit_buffer[30];
-    for (int i=0;i<SENSOR_COUNT;i++) {
-        if (setup_sensor(i)) {
-            Serial.println("--------WARNING: A SENSOR FAILED-------");
-        }
-        sprintf(unit_buffer, ":g%dx;g%dy;g%dz;a%dy;a%dp;a%dr", i,i,i,i,i,i);
-        strcat(headerline, unit_buffer);
-    } 
-
-
+    
     write_values(headerline);
     digitalWrite(LED_BLUE, LOW);
     digitalWrite(LED_GREEN, HIGH);
-
+    
     // ------Parallelization setup------
     xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
-
+    
     timer_battery_check.start();
   
     // ---- TIME SINGLE CYCLE ----

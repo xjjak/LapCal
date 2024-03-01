@@ -1,6 +1,6 @@
 // constants
 const SCALER_WIDTH = 100;
-const IPADDR = "10.4.27.28"
+
 // default sizes & keyboard measurements
 let w = 734, h = 667;
 let aspectratio = w/h;
@@ -44,6 +44,21 @@ let bottom_aligned = true;
 let send_to_server = true;
 
 
+// auxiliary functions
+const onButtonClick = (button, func, ...args) => (tx, ty) => {
+    let [sx,sy,sw,sh] = button;
+    if (mirror)
+        sx = 1-(sx+sw);
+    if (sx*w <= tx && tx <= (sx+sw)*w &&
+        sy*h <= ty && ty <= (sy+sh)*h) {
+        func(...args);
+        return true;
+    } else {
+        return false;
+    }
+};
+
+
 // Initialisation
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -73,33 +88,18 @@ function draw() {
     pop();
 
     // draw all keyboard keys
-    // + highlight all pressed keys
     kb_positions.forEach((finger, i) => {
         finger.forEach((pos, j) => {
             // relative bounding box considering `mirror`
             let [x, y] = pos;
-            let xw = x+key_size[0];
-            let yh = y+key_size[1];
-            if (mirror)
-                [x, xw] = [1-xw, 1-x];
+            if (mirror) x = 1 - (x+key_size[0]);
 
-            // color =
-            //     green        ; if pressed
-            //     finger_color ; otherwise
             push();
             fill(finger_coloring[i]);
+            // add border when the key is suggested
             if (suggested_key[0] == i && suggested_key[1] == j) {
                 strokeWeight(4);
                 stroke(255,0,0);
-            }
-
-            for (const [id, touch] of touchPositions) {
-                let [tx, ty] = touch;
-                if (w*x <= tx && tx <= w*xw &&
-                    h*y <= ty - bottom_aligned*(windowHeight-h) &&
-                    ty - bottom_aligned*(windowHeight-h) <= h*yh){
-                    fill(0,255,0);
-                }
             }
 
             // draw rect
@@ -108,6 +108,16 @@ function draw() {
         })
     });
 
+    // mark all currently pressed keys
+    push();
+    fill(0, 255, 0);
+    touchPositions.forEach((idx, id) => {
+        let [x, y] = kb_positions[idx[0]][idx[1]];
+        if (mirror) x = 1 - (x+key_size[0]);
+        rect(w*x, bottom_aligned*(windowHeight-h)+h*y, w*key_size[0], h*key_size[1]);
+    });
+    pop();
+    
     // draw save button
     fill(255,230,230);
     let [sx,sy,sw,sh] = saveButton;
@@ -121,45 +131,46 @@ function draw() {
     if (mirror)
         sx = 1-(sx+sw);
     rect(sx*w,sy*h,sw*w,sh*h);
+
+    // fix hanging press
+    if (touches.length == 0)
+        touchPositions = new Map();
 }
 
 // process initiated touch events
 function touchStarted(event) {
     let tx = event.changedTouches[0].clientX;
     let ty = event.changedTouches[0].clientY;
-    touchPositions.set(event.changedTouches[0].identifier, [tx, ty]);
-    
-    // check for save button press
-    let [sx,sy,sw,sh] = saveButton;
-    if (mirror)
-        sx = 1-(sx+sw);
-    if (sx*w <= tx && tx <= (sx+sw)*w &&
-        sy*h <= ty && ty <= (sy+sh)*h) {
-        saveToFile();
-        return false;
-    }
-    
-    // check if any key is touched and log press
-    kb_positions.forEach((finger, fi) => {
-        finger.forEach((pos, pi) => {
-            // relative bounding box considering `mirror`
-            let [x, y] = pos;
-            let xw = x+key_size[0];
-            let yh = y+key_size[1];
-            if (mirror)
-                [x, xw] = [1-xw, 1-x];
 
-            // log if current key is touched
-            if (w*x <= tx && tx <= w*xw &&
-                h*y <= ty - bottom_aligned*(windowHeight-h) &&
-                ty - bottom_aligned*(windowHeight-h) <= h*yh){
-                log_now("+ " + fi.toString() + pi.toString());
-                // re-generate suggested_key if the last one was pressed
-                if (suggested_key[0] == fi && suggested_key[1] == pi)
-                    new_suggested_key();
-            }
-        })
-    });
+    // check for extra buttons
+    if (onButtonClick(saveButton, saveToFile)(tx, ty))
+        return false;
+    if (onButtonClick(flipButton, flip)(tx, ty))
+        return false;
+    
+    idx = kb_positions.map((finger, fi) => {
+        return finger.map((pos, pi) => [pos, [fi, pi]]);
+    }).flat().reduce((acc, el) => {
+        let [[x, y], new_idx] = el;
+        x += key_size[0]/2;
+        y += key_size[1]/2;
+        if (mirror) x = 1 - (x+key_size[0]);
+
+        let new_dist = (tx - x*w)**2 + ((ty - bottom_aligned*(windowHeight-h)) - y*h)**2;
+        let [dist, idx] = acc;
+        if (new_dist < dist)
+            return [new_dist, new_idx];
+        else
+            return acc;
+    }, [Infinity, [0, 0]])[1];
+
+
+    log_now("+ " + idx[0].toString() + idx[1].toString());
+    // re-generate suggested_key if the last one was pressed
+    if (suggested_key[0] == idx[0] && suggested_key[1] == idx[1])
+        new_suggested_key();
+    
+    touchPositions.set(event.changedTouches[0].identifier, idx);
     
     return false;
 }
@@ -183,34 +194,13 @@ function mouseDragged() {
 
 // process finalised touch events
 function touchEnded(event) {
-    let [tx, ty] = touchPositions.get(event.changedTouches[0].identifier)
+    if (!touchPositions.has(event.changedTouches[0].identifier))
+        return false;
+    
+    let idx = touchPositions.get(event.changedTouches[0].identifier);
     touchPositions.delete(event.changedTouches[0].identifier);
 
-    // check for flip button press
-    let [sx,sy,sw,sh] = flipButton;
-    if (mirror)
-        sx = 1-(sx+sw);
-    if (sx*w <= tx && tx <= (sx+sw)*w &&
-        sy*h <= ty && ty <= (sy+sh)*h) {
-        flip();
-        return false;
-    }
-    
-    // check if any key is touched and log press    
-    kb_positions.forEach((finger, fi) => {
-        finger.forEach((pos, pi) => {
-            let [x, y] = pos;
-            let xw = x+key_size[0];
-            let yh = y+key_size[1];
-            if (mirror)
-                [x, xw] = [1-xw, 1-x];
-            if (w*x <= tx && tx <= w*xw &&
-                h*y <= ty - bottom_aligned*(windowHeight-h) &&
-                ty - bottom_aligned*(windowHeight-h) <= h*yh){
-                log_now("- " + fi.toString() + pi.toString());
-            }
-        })
-    });
+    log_now("- " + idx[0].toString() + idx[1].toString());
     
     return false;
 }
