@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/home/e/Documents/Projects/DataGlove/Hardware/Electronics/SensorUnit/sensor/sensor.kicad_sch</source>
+    <date>Wed 13 Dec 2023 11:51:25 AM CET</date>
+    <tool>Eeschema 7.0.9-1.fc38</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>IMU Sensor Unit (Data Glove)</title>
+        <company>Emil Büttner</company>
+        <rev>V1</rev>
+        <date>2022-11-12</date>
+        <source>sensor.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="C1">
+      <value>0.1uF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Unpolarized capacitor, small symbol"/>
+      <property name="ki_keywords" value="capacitor cap"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8a47ce0b-3ae4-42e5-9f1c-735d705162b9</tstamps>
+    </comp>
+    <comp ref="C2">
+      <value>0.1uF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Unpolarized capacitor, small symbol"/>
+      <property name="ki_keywords" value="capacitor cap"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6c55daec-af23-40cf-bd45-5d797a2d7b1c</tstamps>
+    </comp>
+    <comp ref="C3">
+      <value>2.2nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Unpolarized capacitor, small symbol"/>
+      <property name="ki_keywords" value="capacitor cap"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d520d802-b6ac-43ab-9e20-6b45927df6bb</tstamps>
+    </comp>
+    <comp ref="C4">
+      <value>10nF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Unpolarized capacitor, small symbol"/>
+      <property name="ki_keywords" value="capacitor cap"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e6ecd59e-78c1-4ec6-a25c-4a8ffd0284f5</tstamps>
+    </comp>
+    <comp ref="D1">
+      <value>Blue</value>
+      <footprint>LED_SMD:LED_0603_1608Metric</footprint>
+      <libsource lib="Device" part="LED_Small" description="Light emitting diode, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Light emitting diode, small symbol"/>
+      <property name="ki_keywords" value="LED diode light-emitting-diode"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cd726c1c-a720-4767-a576-5012ed96c6c0</tstamps>
+    </comp>
+    <comp ref="H1">
+      <value>MountingHole</value>
+      <footprint>MountingHole:MountingHole_2.1mm</footprint>
+      <libsource lib="Mechanical" part="MountingHole" description="Mounting Hole without connection"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Mounting Hole without connection"/>
+      <property name="ki_keywords" value="mounting hole"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>49820095-2a53-4451-8d2f-092dedf0e006</tstamps>
+    </comp>
+    <comp ref="H2">
+      <value>MountingHole</value>
+      <footprint>MountingHole:MountingHole_2.1mm</footprint>
+      <libsource lib="Mechanical" part="MountingHole" description="Mounting Hole without connection"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Mounting Hole without connection"/>
+      <property name="ki_keywords" value="mounting hole"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1b48f77f-0320-426c-bc9f-a07b17966698</tstamps>
+    </comp>
+    <comp ref="J1">
+      <value>SM04B-SRSS-TB(LF)(SN)</value>
+      <footprint>Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal</footprint>
+      <fields>
+        <field name="MANUFACTURER">JST</field>
+        <field name="STANDARD">Manufacturer recommendations</field>
+      </fields>
+      <libsource lib="SM04B-SRSS-TB_LF__SN_" part="SM04B-SRSS-TB(LF)(SN)" description=""/>
+      <property name="MANUFACTURER" value="JST"/>
+      <property name="STANDARD" value="Manufacturer recommendations"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>aa9ec297-d93e-4926-8744-2d4ca5bc8095</tstamps>
+    </comp>
+    <comp ref="R1">
+      <value>2k</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Resistor, small symbol"/>
+      <property name="ki_keywords" value="R resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a0d1c15a-8e28-4202-99c9-e79c95464e2f</tstamps>
+    </comp>
+    <comp ref="R2">
+      <value>4k7</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder</footprint>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Resistor, small symbol"/>
+      <property name="ki_keywords" value="R resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8e06efaa-9fc4-420f-ac3e-f31a8809ff3e</tstamps>
+    </comp>
+    <comp ref="R3">
+      <value>4k7</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder</footprint>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <property name="ki_description" value="Resistor, small symbol"/>
+      <property name="ki_keywords" value="R resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f7504eec-4536-4929-a2a2-ef5736332c42</tstamps>
+    </comp>
+    <comp ref="U1">
+      <value>MPU-6050</value>
+      <footprint>Sensor_Motion:InvenSense_QFN-24_4x4mm_P0.5mm</footprint>
+      <datasheet>https://store.invensense.com/datasheets/invensense/MPU-6050_DataSheet_V3%204.pdf</datasheet>
+      <libsource lib="sensor-rescue" part="MPU-6050-Sensor_Motion" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="sensor.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>00000000-0000-0000-0000-0000636fb684</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Device" part="C_Small">
+      <description>Unpolarized capacitor, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>C_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C_Small</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="LED_Small">
+      <description>Light emitting diode, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>LED*</fp>
+        <fp>LED_SMD:*</fp>
+        <fp>LED_THT:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">LED_Small</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="R_Small">
+      <description>Resistor, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R_Small</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Mechanical" part="MountingHole">
+      <description>Mounting Hole without connection</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>MountingHole*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">H</field>
+        <field name="Value">MountingHole</field>
+        <field name="Datasheet">~</field>
+      </fields>
+    </libpart>
+    <libpart lib="SM04B-SRSS-TB_LF__SN_" part="SM04B-SRSS-TB(LF)(SN)">
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">SM04B-SRSS-TB(LF)(SN)</field>
+        <field name="Footprint">JST_SM04B-SRSS-TB(LF)(SN)</field>
+        <field name="MANUFACTURER">JST</field>
+        <field name="STANDARD">Manufacturer recommendations</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+        <pin num="3" name="3" type="passive"/>
+        <pin num="4" name="4" type="passive"/>
+        <pin num="S1" name="SHIELD" type="passive"/>
+        <pin num="S2" name="SHIELD" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="sensor-rescue" part="MPU-6050-Sensor_Motion">
+      <footprints>
+        <fp>*QFN-24*4x4mm*P0.5mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">MPU-6050-Sensor_Motion</field>
+        <field name="Footprint">Sensor_Motion:InvenSense_QFN-24_4x4mm_P0.5mm</field>
+      </fields>
+      <pins>
+        <pin num="1" name="CLKIN" type="input"/>
+        <pin num="6" name="AUX_SDA" type="bidirectional"/>
+        <pin num="7" name="AUX_SCL" type="output"/>
+        <pin num="8" name="VDDIO" type="power_in"/>
+        <pin num="9" name="AD0" type="input"/>
+        <pin num="10" name="REGOUT" type="passive"/>
+        <pin num="11" name="FSYNC" type="input"/>
+        <pin num="12" name="INT" type="output"/>
+        <pin num="13" name="VDD" type="power_in"/>
+        <pin num="18" name="GND" type="power_in"/>
+        <pin num="20" name="CPOUT" type="passive"/>
+        <pin num="23" name="SCL" type="input"/>
+        <pin num="24" name="SDA" type="bidirectional"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Device">
+      <uri>/usr/share/kicad/symbols//Device.kicad_sym</uri>
+    </library>
+    <library logical="Mechanical">
+      <uri>/usr/share/kicad/symbols//Mechanical.kicad_sym</uri>
+    </library>
+    <library logical="sensor-rescue">
+      <uri>/home/e/Documents/Projects/DataGlove/Hardware/Electronics/SensorUnit/sensor/sensor-rescue.lib</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="+3V3">
+      <node ref="C2" pin="1" pintype="passive"/>
+      <node ref="C4" pin="1" pintype="passive"/>
+      <node ref="D1" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="J1" pin="4" pinfunction="4" pintype="passive"/>
+      <node ref="R2" pin="1" pintype="passive"/>
+      <node ref="R3" pin="1" pintype="passive"/>
+      <node ref="U1" pin="13" pinfunction="VDD" pintype="power_in"/>
+      <node ref="U1" pin="8" pinfunction="VDDIO" pintype="power_in"/>
+    </net>
+    <net code="2" name="GND">
+      <node ref="C1" pin="2" pintype="passive"/>
+      <node ref="C2" pin="2" pintype="passive"/>
+      <node ref="C3" pin="2" pintype="passive"/>
+      <node ref="C4" pin="2" pintype="passive"/>
+      <node ref="J1" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="R1" pin="1" pintype="passive"/>
+      <node ref="U1" pin="18" pinfunction="GND" pintype="power_in"/>
+      <node ref="U1" pin="9" pinfunction="AD0" pintype="input"/>
+    </net>
+    <net code="3" name="Net-(D1-K)">
+      <node ref="D1" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="R1" pin="2" pintype="passive"/>
+    </net>
+    <net code="4" name="Net-(U1-CPOUT)">
+      <node ref="C3" pin="1" pintype="passive"/>
+      <node ref="U1" pin="20" pinfunction="CPOUT" pintype="passive"/>
+    </net>
+    <net code="5" name="Net-(U1-REGOUT)">
+      <node ref="C1" pin="1" pintype="passive"/>
+      <node ref="U1" pin="10" pinfunction="REGOUT" pintype="passive"/>
+    </net>
+    <net code="6" name="SCL">
+      <node ref="J1" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="R3" pin="2" pintype="passive"/>
+      <node ref="U1" pin="23" pinfunction="SCL" pintype="input"/>
+    </net>
+    <net code="7" name="SDA">
+      <node ref="J1" pin="3" pinfunction="3" pintype="passive"/>
+      <node ref="R2" pin="2" pintype="passive"/>
+      <node ref="U1" pin="24" pinfunction="SDA" pintype="bidirectional"/>
+    </net>
+    <net code="8" name="unconnected-(J1-SHIELD-PadS1)">
+      <node ref="J1" pin="S1" pinfunction="SHIELD" pintype="passive+no_connect"/>
+      <node ref="J1" pin="S2" pinfunction="SHIELD" pintype="passive+no_connect"/>
+    </net>
+    <net code="9" name="unconnected-(U1-AUX_SCL-Pad7)">
+      <node ref="U1" pin="7" pinfunction="AUX_SCL" pintype="output+no_connect"/>
+    </net>
+    <net code="10" name="unconnected-(U1-AUX_SDA-Pad6)">
+      <node ref="U1" pin="6" pinfunction="AUX_SDA" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="11" name="unconnected-(U1-CLKIN-Pad1)">
+      <node ref="U1" pin="1" pinfunction="CLKIN" pintype="input+no_connect"/>
+    </net>
+    <net code="12" name="unconnected-(U1-FSYNC-Pad11)">
+      <node ref="U1" pin="11" pinfunction="FSYNC" pintype="input+no_connect"/>
+    </net>
+    <net code="13" name="unconnected-(U1-INT-Pad12)">
+      <node ref="U1" pin="12" pinfunction="INT" pintype="output+no_connect"/>
+    </net>
+  </nets>
+</export>

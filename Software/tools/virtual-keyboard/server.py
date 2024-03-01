@@ -1,5 +1,6 @@
 from flask import Flask, request, session, make_response, render_template, redirect
 from time import time
+import socket
 
 
 app = Flask(__name__)
@@ -31,7 +32,8 @@ def index():
             
         return "successful"
     else:
-        return render_template("index.html")
+        ipaddr = socket.gethostbyname(socket.gethostname())
+        return render_template("index.html", ipaddr = ipaddr)
 
         
 # clear logs
