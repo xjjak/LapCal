@@ -16,7 +16,7 @@ class SklearnModel:
         self.model = joblib.load(path)
 
     def predict(self, features):
-        return self.model.predict([features])[0]
+        return self.model.predict([features])
 
 
 class TensorFlowModel:
@@ -24,4 +24,5 @@ class TensorFlowModel:
         self.model = keras.models.load_model(path)
 
     def predict(self, features):
-        return self.model.predict([features])[0] > 0.5
+        # print(self.model.predict([features]))
+        return self.model.predict([features])[0] > 0.01
