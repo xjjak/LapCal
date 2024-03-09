@@ -10,5 +10,4 @@ prepend_timestamp(){
     done
 }
 
-get_records | prepend_timestamp | tee -a keylog.csv
-
+get_records | prepend_timestamp
