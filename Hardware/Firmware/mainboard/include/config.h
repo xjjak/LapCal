@@ -45,6 +45,9 @@ struct offsets {
 #define MULT_CORE 1
 #endif 
 
+#ifndef BLE_SERIAL
+#define BLE_SERIAL 0
+#endif 
 
 #if RIGHT_HAND
     const offsets mpu_offsets[] = {
