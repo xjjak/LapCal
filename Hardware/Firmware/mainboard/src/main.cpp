@@ -9,6 +9,19 @@
 #include "touch.h"
 #include "sensors.h"
 
+
+// #if BLE_SERIAL
+//
+// #include <BLEDevice.h>
+// #include <BleSerial.h>
+// BleSerial ble;
+//
+// #endif
+
+#include <BLEDevice.h>
+#include <BleSerial.h>
+BleSerial ble;
+
 // ------ TICKERS ------
 #include <TickTwo.h>
 bool check_bat_flag = false;
@@ -68,7 +81,15 @@ void setup(){
     }
     
     timer_battery_check.start();
-  
+
+    if (BLE_SERIAL){
+// #if BLE_SERIAL
+        ble.begin("Lapcal left");
+        ble.println("Hello World!");
+        Serial.println("BLESerial started.");
+// #endif
+    }
+
     // ---- TIME SINGLE CYCLE ----
     //
     // uint32_t prev_millis = millis();
@@ -84,7 +105,21 @@ void loop(){
     // Serial.println("Sensing.");
     get_all_readings(all_readings);
     format_readings(all_readings, all_readings_charbuf);
-    write_values(all_readings_charbuf);
+
+
+    if (BLE_SERIAL){
+        ble.println(all_readings_charbuf);
+    }
+    else {
+        write_values(all_readings_charbuf);
+    }
+   
+// #if BLE_SERIAL
+//     ble.println(all_readings_charbuf);
+// #else
+//     write_values(all_readings_charbuf);
+// #endif
+
 
     // Serial.println("Checking bat_stat");
     if (check_bat_flag){
