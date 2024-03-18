@@ -1,6 +1,6 @@
 # Usage
 
-1. Provide `hid_listen` script (you can find it [here](https://www.pjrc.com/teensy/hid_listen.html)] in the local folder.
+1. Provide [`hid_listen`](https://www.pjrc.com/teensy/hid_listen.html) script in the local folder.
 2. Either:
    - If you want to keep the `keylog.csv` file separately.
      1. Run `./keylogger-for-data-collection.sh >> keylog.csv` while collecting data.
