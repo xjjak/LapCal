@@ -51,7 +51,7 @@ platforms/avr/drivers/i2c_master.c:61:10: error: array subscript 0 is outside ar
 ```
 Try appending `-e AVR_CFLAGS="-Wno-array-bounds"` to `qmk compile` or `qmk flash` as a workaround.
 
-# Documenation
+# Documentation
 
 
 ## Timing comparison
