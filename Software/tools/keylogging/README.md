@@ -12,8 +12,9 @@
 
 - Follow [basic qmk instructions](https://docs.qmk.fm/#/newbs) for building and flashing
 - locate the folder with keymap.json/keymap.c
-- *If there is only keymap.json*: run `qmk json2c keymap.json > keymap.c`
-- remove/rename the .json
+- *If there is only keymap.json*:
+   - run `qmk json2c keymap.json > keymap.c`
+   - remove/rename the .json
 - change the bootloader in `rules.mk` to `atmel-dfu`
 - append `CONSOLE_ENABLE= = yes` to `rules.mk`
 - Append the following to `keymap.c`:
