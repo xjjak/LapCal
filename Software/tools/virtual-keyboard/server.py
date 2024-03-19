@@ -18,14 +18,14 @@ def index():
         msg = request.get_data().decode()
 
         later = []
-        while logs and int(logs[-1].split()[0]) > int(msg.split()[0]):
+        while logs and int(logs[-1].split(",")[0]) > int(msg.split(",")[0]):
             later.append(logs.pop())
             
         logs.append(msg)
         logs.extend(later[::-1])
             
         try:
-            millis, *_ = msg.split()
+            millis, *_ = msg.split(",")
             print(f"Delay: {time()*1000 - float(millis)}")
         except:
             print("ERROR: Message is malformatted!")
