@@ -8,7 +8,7 @@ This folder contains all the custom software needed for this project.  This poss
 
 * Structure
 
-[[../Documentation/diagrams/software-structure.svg]]
+[[../Documentation/diagrams/software-structure-bg.svg]]
 
 * Usage
 
