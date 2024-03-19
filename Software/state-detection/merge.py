@@ -39,8 +39,8 @@ clicks_with_time  = []
 # read clicks from clicks.txt
 with open(os.path.join(dataset_directory, "clicks.txt")) as f:
     for line in f.read().strip().split("\n"):
-        click = line.split()
-        clicks_with_time += [(int(click[0])+125, " ".join(click[1:]))]
+        click = line.split(",")
+        clicks_with_time += [(int(click[0])+125, ",".join(click[1:]))]
 
 
 # join readings and clicks
