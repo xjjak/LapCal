@@ -36,7 +36,7 @@ def prepare_dataset(readings, clicks):
     start = bisect_right(readings, clicks[0]) - N_READINGS
     for click_index in range(len(clicks)):
         flag, col, row = clicks[click_index][1].split(",")
-        flag, col, row = bool(flag), int(col), int(row)
+        flag, col, row = bool(int(flag)), int(col), int(row)
 
         target = (col, row)
         index = TARGET_NAMES.index(target)
