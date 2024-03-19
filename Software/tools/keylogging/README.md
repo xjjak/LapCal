@@ -16,7 +16,7 @@
    - run `qmk json2c keymap.json > keymap.c`
    - remove/rename the .json
 - change the bootloader in `rules.mk` to `atmel-dfu`
-- append `CONSOLE_ENABLE= = yes` to `rules.mk`
+- append `CONSOLE_ENABLE = yes` to `rules.mk`
 - Append the following to `keymap.c`:
   ```c
   bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
