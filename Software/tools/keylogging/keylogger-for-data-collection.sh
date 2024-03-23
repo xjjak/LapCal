@@ -11,8 +11,11 @@ get_records(){
 
 prepend_timestamp(){
     while read line; do
-        echo "$(date +%s%N),$line"
+        echo "$(($(date +%s%N) / 1000)),$line"
     done
 }
+
+# echo $(($(date +%s%N) / 1000))
+
 
 get_records | prepend_timestamp
