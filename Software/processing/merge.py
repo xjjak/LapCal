@@ -1,0 +1,84 @@
+#!/usr/bin/env nix-shell
+#! nix-shell shell.nix -i python3
+
+import sys
+import os
+import numpy as np
+import joblib
+from sklearn.model_selection import train_test_split
+from prepare_dataset import prepare_dataset
+
+# check if dataset directory was provided
+if len(sys.argv) > 1:
+    dataset_directory = sys.argv[1]
+    assert os.path.exists(os.path.join(dataset_directory, "data.txt")) \
+        and os.path.exists(os.path.join(dataset_directory, "clicks.txt"))
+else:
+    print("No directory specified.")
+    exit(1)
+
+warmup_time = 100
+    
+milliseconds = 0
+readings_with_time = []
+minimum_milliseconds = None
+
+# read readings from data.txt
+with open(os.path.join(dataset_directory, "data.txt")) as f:
+    data = f.read().split("\n")
+    milliseconds = int(data[0].split(":")[0])
+    last_milliseconds = milliseconds
+
+    # Iterate through all entries except
+    # - the first, because it only contains the column names,
+    # - the last, because it may be empty or contain partial information.
+    for line in data[1:-1]:
+        if "t" in line:
+            readings_with_time += [(last_milliseconds+1, line)]
+        else:
+            reading = line.split(":")
+            last_milliseconds = milliseconds + int(reading[0])//1000
+            minimum_milliseconds = minimum_milliseconds or last_milliseconds
+            readings_with_time += [(last_milliseconds, ":".join(reading[1:]))]
+
+clicks_with_time  = []
+
+# read clicks from clicks.txt
+with open(os.path.join(dataset_directory, "clicks.txt")) as f:
+    past_start = False
+    
+    for line in f.read().strip().split("\n"):
+        click = line.split(",")
+        time = int(click[0])+125
+        
+        if time > minimum_milliseconds + warmup_time and click[1] == "1":
+            past_start = True
+            
+        if past_start:
+            clicks_with_time += [(time, ",".join(click[1:]))]
+
+
+# join readings and clicks
+joined = sorted(readings_with_time + clicks_with_time)
+
+# write result to joined.txt
+with open(os.path.join(dataset_directory, "joined.txt"), "w") as f:
+    for i in joined:
+        f.write(i[1]+"\n")
+
+
+x, y = prepare_dataset(readings_with_time, clicks_with_time)
+
+# split into train, dev and test distribution
+x_train, x_dev, y_train, y_dev = train_test_split(
+    x, y, test_size=0.3, random_state=25
+)
+x_dev, x_test, y_dev, y_test = train_test_split(
+    x_dev, y_dev, test_size=0.4, random_state=16
+)
+
+dataset = (x_train, y_train, x_dev, y_dev, x_test, y_test)
+dataset_full = (x, y)
+
+joblib.dump(dataset, os.path.join(dataset_directory, "dataset-split.joblib"))
+joblib.dump(dataset_full, os.path.join(dataset_directory, "dataset.joblib"))
