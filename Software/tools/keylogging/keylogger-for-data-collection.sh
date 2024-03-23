@@ -15,7 +15,4 @@ prepend_timestamp(){
     done
 }
 
-# echo $(($(date +%s%N) / 1000))
-
-
 get_records | prepend_timestamp
