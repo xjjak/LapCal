@@ -1,3 +1,6 @@
+#!/usr/bin/env nix-shell
+#! nix-shell shell.nix -i python3
+
 from flask import Flask, request, session, make_response, render_template, redirect
 from time import time
 import socket
