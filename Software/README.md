@@ -1,4 +1,4 @@
-* Description
+# Description
 
 This folder contains all the custom software needed for this project.  This possibly among others includes:
 - data collection
@@ -6,11 +6,11 @@ This folder contains all the custom software needed for this project.  This poss
 - model training and development
 - analysis and visualizations
 
-* Structure
+# Structure
 
-[[../Documentation/diagrams/software-structure-bg.svg]]
+![Software Structure Diagram](../Documentation/diagrams/software-structure-bg.svg)
 
-* Usage
+# Usage
 
 list scripts...
 explain subdirectories
