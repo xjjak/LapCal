@@ -8,21 +8,21 @@ let key_size = [125/w, 125/h]
 let kb_positions = [
     [[0/w, 125/h],
      [0/w, 260/h],
-     [0/w, 395/h]],
+     [0/w, 395/h],
+     [1-key_size[0]-135/w, 1-key_size[1]-35/h]],
     [[135/w, 42/h],
      [135/w, 177/h],
-     [135/w, 312/h]],
+     [135/w, 312/h],
+     [1-key_size[0], 1-key_size[1]]],
     [[270/w, 0/h],
      [270/w, 135/h],
      [270/w, 270/h]],
     [[405/w, 38/h],
      [405/w, 173/h],
-     [405/w, 308/h],
-     [540/w, 56/h],
+     [405/w, 308/h]],
+    [[540/w, 56/h],
      [540/w, 191/h],
      [540/w, 326/h]],
-    [[1-key_size[0], 1-key_size[1]],
-     [1-key_size[0]-135/w, 1-key_size[1]-35/h]]
 ];
 
 // colors per finger
@@ -165,7 +165,7 @@ function touchStarted(event) {
     }, [Infinity, [0, 0]])[1];
 
 
-    log_now("+ " + idx[0].toString() + idx[1].toString());
+    log_now("1," + idx[0].toString() + "," + idx[1].toString(), sep=",");
     // re-generate suggested_key if the last one was pressed
     if (suggested_key[0] == idx[0] && suggested_key[1] == idx[1])
         new_suggested_key();
@@ -200,13 +200,13 @@ function touchEnded(event) {
     let idx = touchPositions.get(event.changedTouches[0].identifier);
     touchPositions.delete(event.changedTouches[0].identifier);
 
-    log_now("- " + idx[0].toString() + idx[1].toString());
+    log_now("0," + idx[0].toString() + idx[1].toString(), sep=",");
     
     return false;
 }
 
-function log_now(msg) {
-    log_str = Date.now().toString() + " " + msg;
+function log_now(msg, sep = " ") {
+    log_str = Date.now().toString() + sep + msg;
     logs.push(log_str);
 
     // Send new message to server
