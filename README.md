@@ -7,8 +7,13 @@
 
 ![General concept](./Documentation/images/lapcal-concept-handdrawn-small.png)![First Prototype](./Documentation/images/lapcal-first-protoype-small.png)![Second Prototype - PGD](./Documentation/images/lapcal-protoype-pgd-small.png)
 
+*The vision:*
 
 Building gloves that enable typing on a 34-key keyboard without an actual physical keyboard using IMUs and machine learning. 
+
+*Description and explanation of repository structure and "usage"(?):*
+
+
  
 
 This work is licensed under a
