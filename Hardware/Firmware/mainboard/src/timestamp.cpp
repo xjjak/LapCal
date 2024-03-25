@@ -42,14 +42,15 @@ void initWiFi() {
   Serial.println(WiFi.localIP());
 }
 
-void gen_timestamp(char* start_timestamp){
+void gen_timestamp(char* start_timestamp, long long* timestamp_num){
     char buffer[3];
     initWiFi();
     waitForSync();
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF);
     sprintf(start_timestamp, "%d", now());
-    sprintf(buffer,"%d",ms());
+    sprintf(buffer,"%d",ms()*1000);
     strcat(start_timestamp, buffer);
-    sprintf(start_timestamp, "%lld", (atoll(start_timestamp)-millis()));
+    sprintf(start_timestamp, "%lld", (atoll(start_timestamp)-micros()));
+    *timestamp_num = atoll(start_timestamp);
 }

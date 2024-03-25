@@ -37,6 +37,7 @@ reading all_readings[SENSOR_COUNT];
 char all_readings_charbuf[SENSOR_COUNT*201];
 
 char unix_timestamp[60];
+long long timestamp_num;
 
 TaskHandle_t TaskFifoReset;
 
@@ -64,7 +65,7 @@ void setup(){
     setup_sensors();
     
     // ------SETUP SD------------
-    gen_timestamp(unix_timestamp);
+    gen_timestamp(unix_timestamp, &timestamp_num);
     Serial.println(unix_timestamp);
     // sprintf(headerline, "%d", unix_timestamp);
     strcat(headerline, unix_timestamp);
@@ -107,7 +108,7 @@ void setup(){
 void loop(){
     // Serial.println("Sensing.");
     get_all_readings(all_readings);
-    format_readings(all_readings, all_readings_charbuf);
+    format_readings(all_readings, all_readings_charbuf, timestamp_num);
 
 
 #if BLE_SERIAL

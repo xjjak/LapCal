@@ -259,10 +259,10 @@ void get_all_readings(reading* output) {
     }
 }
 
-void format_readings(reading* input, char* output_buf) {
+void format_readings(reading* input, char* output_buf, long long timestamp) {
     // char output_buf[1005];
     // output_buf[0] = (char)0;
-    sprintf(output_buf, "%d", micros());
+    sprintf(output_buf, "%lld", (timestamp + micros()));
     char return_buf[200];
     reading cur_reading;
     for (int i=0;i<SENSOR_COUNT;i++) {
