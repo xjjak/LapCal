@@ -165,7 +165,7 @@ function touchStarted(event) {
     }, [Infinity, [0, 0]])[1];
 
 
-    log_now("1," + idx[0].toString() + "," + idx[1].toString(), sep=",");
+    log_now(["1", idx[0].toString(), idx[1].toString()], sep=",");
     // re-generate suggested_key if the last one was pressed
     if (suggested_key[0] == idx[0] && suggested_key[1] == idx[1])
         new_suggested_key();
@@ -200,13 +200,13 @@ function touchEnded(event) {
     let idx = touchPositions.get(event.changedTouches[0].identifier);
     touchPositions.delete(event.changedTouches[0].identifier);
 
-    log_now("0," + idx[0].toString() + idx[1].toString(), sep=",");
+    log_now(["0", idx[0].toString(), idx[1].toString()], sep=",");
     
     return false;
 }
 
-function log_now(msg, sep = " ") {
-    log_str = Date.now().toString() + sep + msg;
+function log_now(msgs, sep = " ") {
+    log_str = (1000*Date.now()).toString() + sep + msgs.join(sep);
     logs.push(log_str);
 
     // Send new message to server
