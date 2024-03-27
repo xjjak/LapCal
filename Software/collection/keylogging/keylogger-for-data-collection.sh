@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env nix-shell
+#! nix-shell shell.nix -i python311
 
 hid_listen=$(dirname "$0")/hid_listen
 if [[ ! -e "$hid_listen" ]]; then

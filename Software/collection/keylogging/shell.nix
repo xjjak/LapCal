@@ -9,6 +9,7 @@ pkgs.mkShellNoCC {
     python311Packages.numpy
 
     # scripting
+    bash
     coreutils
     gnugrep
 
