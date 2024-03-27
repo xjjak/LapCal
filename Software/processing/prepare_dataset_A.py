@@ -2,16 +2,19 @@ import numpy as np
 from bisect import bisect_right
 from math import sin, cos
 
+# Constants subject to change
 N_READINGS = 3 # number of readings considered by model
-N_SENSORS = 6
-N_VALUES = 3 + 3 + 3 # 3 acc + 3 gyr sin + 3 gyr cos
 N_STATES = 17 # depends on keyboard
 TARGET_NAMES = [(0,0), (1,0), (2,0), (3,0), (4,0),
                 (0,1), (1,1), (2,1), (3,1), (4,1),
                 (0,2), (1,2), (2,2), (3,2), (4,2),
                 (0,3), (1,3)]
 
-def readings_to_data(reading):
+# Descriptive constants
+N_SENSORS = 6
+N_VALUES = 3 + 3 + 3 # 3 acc + 3 gyr sin + 3 gyr cos
+
+def reading_to_data(reading):
     sensors = reading.split(":")
     assert len(sensors) == N_SENSORS
     data = []
@@ -36,7 +39,8 @@ def prepare_dataset(readings, clicks):
     
     X = np.zeros(shape = (n_samples, n_features))
     y = np.zeros(shape = (n_samples, N_STATES))
-    
+
+    # Labels
     start = bisect_right(readings, clicks[0]) - N_READINGS
     for click_index in range(len(clicks)):
         flag, col, row = clicks[click_index][1].split(",")
@@ -49,12 +53,12 @@ def prepare_dataset(readings, clicks):
         if click_index + 1 != len(clicks):
             start = bisect_right(readings, clicks[click_index+1]) - N_READINGS
 
-
+    # Features
     for sample_index in range(n_samples):
         for reading in range(N_READINGS):
             start = reading * (N_SENSORS * N_VALUES)
             end   = start + (N_SENSORS * N_VALUES)
-            X[sample_index, start:end] = readings_to_data(readings[sample_index + reading][1])
+            X[sample_index, start:end] = reading_to_data(readings[sample_index + reading][1])
 
         if sample_index == 0:
             X[sample_index, end:] = np.zeros(shape = (N_STATES,))
@@ -62,3 +66,9 @@ def prepare_dataset(readings, clicks):
             X[sample_index, end:] = y[sample_index - 1]
 
     return (X, y)
+
+
+# --- EXPORT ---
+export = [
+    prepare_dataset
+]
