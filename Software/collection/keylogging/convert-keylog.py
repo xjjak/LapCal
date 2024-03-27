@@ -1,3 +1,6 @@
+#!/usr/bin/env nix-shell
+#! nix-shell shell.nix -i python311
+
 # set to true to filter for right hand data, instead of left
 DATA_OF_RIGHT_HAND = False
 
@@ -72,4 +75,4 @@ if __name__ == "__main__":
         
         time, flag, col, row = record[0], record[5], record[3], record[2]
 
-        print(f"{time//1_000_000},{int(flag)},{col},{row}")
+        print(f"{time},{int(flag)},{col},{row}")
