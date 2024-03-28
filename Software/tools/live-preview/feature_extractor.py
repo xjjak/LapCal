@@ -1,6 +1,8 @@
+from pipe import Pipe
+
 from math import sin, cos
 
-class FeatureExtractor:
+class FeatureExtractor(Pipe):
     def __init__(self):
         self.ready = True
 
@@ -12,6 +14,9 @@ class FeatureExtractor:
         
     def get_features(self):
         return []
+
+    def retrieve(self):
+        return self.get_features()
     
 
 class StandardFeatureExtractor(FeatureExtractor):
@@ -40,14 +45,16 @@ class StandardFeatureExtractor(FeatureExtractor):
             if len(vals) != 6:
                 return False
             
-            reading[idx*6    :idx*6 + 6] = [float(val.strip())      for val in vals]
-            # reading[idx*9 + 3:idx*9 + 6] = [sin(float(val.strip())) for val in vals[3:]]
-            # reading[idx*9 + 6:idx*9 + 9] = [cos(float(val.strip())) for val in vals[3:]]
+            reading[idx*6    :idx*6 + 6] = [
+                float(val.strip()) for val in vals
+            ]
 
         self.head = (self.head + 1) % len(self.readings)
 
         if self.readings[self.head] != None:
             self.ready = True
+
+        return True
             
 
     def get_features(self):
@@ -99,7 +106,8 @@ class TrigFeatureExtractor(FeatureExtractor):
 
         if self.readings[self.head] != None:
             self.ready = True
-            
+
+        return True
 
     def get_features(self):
         self.ready = False
