@@ -69,7 +69,7 @@
                     (send b set-label "Stop plotting")
                     (set! plotting-thread
                           (thread
-                           (λ ()
+                           (thunk
                              (define in (open-input-file "/tmp/ttyBLE"))
                              (define testing-interval 50)
 
@@ -77,14 +77,11 @@
                                (let* ([str (read-line in)]
                                       [data (parse str)])
                                  (let* ([row (if (vector? data) (vector-ref data finger-index) #f)]
-                                        [value (if (vector? row)
-                                                   (let ([val (vector-ref row sensor-index)])
-                                                     (or val (and (send feedback-msg show-message
-                                                                        "Parsing error: Check sensor connection")
-                                                                  #f)))
-                                                   #f)])
-                                   (when value
-                                     (send plotter push value))))
+                                        [value (if (vector? row) (vector-ref row sensor-index) #f)])
+                                   (if value
+                                       (send plotter push value)
+                                       (send feedback-msg show-message
+                                             "Parsing error: Check sensor connection"))))
                                (unless (and (= i 0) (eq? (thread-try-receive) 'stop))
                                  (loop (modulo (sub1 i) testing-interval))))
                              (close-input-port in)))))
