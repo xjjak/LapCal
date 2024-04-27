@@ -14,5 +14,7 @@
        (if (= (length sensors) 7)
            (for/vector ([sensor-str (rest sensors)])
              (let ([values (string-split sensor-str ";" #:trim? #f)])
-               (vector-map string->number (list->vector values))))
+               (if (= (length values) 6)
+                   (vector-map string->number (list->vector values))
+                   #f)))
            #f))]))
