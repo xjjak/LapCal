@@ -14,6 +14,14 @@
           [(internal-name name) #f])
 
     (define size internal-size)
+    (define buffer (make-vector size 0))
+    (define index 0)
+
+    (define/public (set-size new-size)
+      (set! size new-size)
+      (set! buffer (make-vector size 0))
+      (set! index 0)
+      (send this on-paint))
     
     (define min-value internal-min-value)
     (define max-value internal-max-value)
@@ -21,7 +29,7 @@
       (set! min-value value)
       (send this on-paint))
     (define/public (set-max-value value)
-      (set! min-value value)
+      (set! max-value value)
       (send this on-paint))
     (define/public (set-bounds bounds)
       (match bounds
@@ -33,9 +41,6 @@
       (set! name text)
       (send this on-paint))
 
-    (define buffer (make-vector size 0))
-    (define index 0)
-    
     (define (draw-plot canvas dc)
       (let* ([width (send canvas get-width)]
              [height (send canvas get-height)]
