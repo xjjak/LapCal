@@ -1,9 +1,6 @@
 ;; -*- eval: (setenv "LD_LIBRARY_PATH" "/home/palisn/.nix-profile/lib") -*-
 #lang racket/gui
 
-; TODO: disable ble when plotting
-; TODO: EOF <eof> handling
-
 (require plot)
 (require "plot-canvas.rkt")
 (require "ble-serial.rkt")
