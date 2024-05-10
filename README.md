@@ -22,4 +22,4 @@ This work is licensed under a
 
 ## Attributions
 
-- For the ring models we use the [Round Anything library by Irev-Dev](https://github.com/Irev-Dev/Round-Anything), licensed under the MIT License.
+For the Ring CAD models in OpenSCAD we use the [Round-Anything library by Irev-Dev](https://github.com/Irev-Dev/Round-Anything), which is licensed under the MIT License.
