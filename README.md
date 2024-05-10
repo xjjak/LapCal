@@ -9,6 +9,10 @@
 
 
 Building gloves that enable typing on a 34-key keyboard without an actual physical keyboard using IMUs and machine learning. 
+
+## Attributions
+
+- For the ring models we use the [Round Anything library by Irev-Dev](https://github.com/Irev-Dev/Round-Anything), licensed under the MIT License.
  
 
 This work is licensed under a
