@@ -1,3 +1,6 @@
+use <Round-Anything/polyround.scad>
+
+
 overlap = 0.001;
 thumb_dia = 16;
 index_dia = 14;
@@ -11,9 +14,6 @@ thumb_hole_angle = -30;
 $fa = 1;
 $fs = 0.4;
 
-// TODO:
-// - fillets
-
 module ring(inner_diameter, tolerance=0.2, hole_width_angle=75, hole_angle=0){
     tol = tolerance;
     strength = 1.5;
@@ -25,23 +25,39 @@ module ring(inner_diameter, tolerance=0.2, hole_width_angle=75, hole_angle=0){
     catch_width = pcb_width + 2*catch_wall;
     catch_overhang = 0.5;
     prong_height = 2;
-    catch_height = pcb_height + prong_height;
+    catch_height = pcb_height + prong_height + 0.01;
+    corner_rad = 0.5;
     
     difference(){
+
     union(){
     cylinder(h = thickness, r=outer_diameter/2, center=true); // Outer ring
-    difference(){
-    translate([-catch_width/2,outer_diameter/2,-thickness/2])cube([catch_width, catch_height, thickness]); // sense unit holder base
+
+    // difference(){
+        translate([0, outer_diameter/2, -thickness/2])linear_extrude(thickness){
+        polygon(polyRound([
+            [-catch_width/2, 0, 0],// bottom`left`
+            [-outer_diameter/2, -outer_diameter/2, 0],
+            [outer_diameter/2, -outer_diameter/2, 0],
+            [catch_width/2, 0 , 0],// bottom right
+            [catch_width/2, catch_height, corner_rad],
+            [catch_width/2-catch_wall-catch_overhang, catch_height, corner_rad],
+            [catch_width/2-catch_wall-catch_overhang, catch_height-prong_height, 0.5],
+            [catch_width/2-catch_wall, catch_height-prong_height, 0],
+            [catch_width/2-catch_wall, catch_height-prong_height-pcb_height, 0],
+            [-catch_width/2+catch_wall, catch_height-prong_height-pcb_height, 0],
+            [-catch_width/2+catch_wall, catch_height-prong_height, 0],
+            [-catch_width/2+catch_wall+catch_overhang, catch_height-prong_height, 0.5],
+            [-catch_width/2+catch_wall+catch_overhang, catch_height, corner_rad],
+            [-catch_width/2, catch_height, corner_rad]
+            ], 30));
+        }
+    }
     
-    translate([0,outer_diameter/2+(pcb_height+tol)/2, 0])cube([pcb_width+tol,pcb_height+tol,thickness], center = true);// pcb
-    translate([0,outer_diameter/2+catch_height-prong_height/2-overlap, 0])cube([pcb_width-catch_overhang*2+tol,prong_height+2*overlap,thickness], center = true); // overhang cutout
-    }
-    #translate([0,outer_diameter/4,0])cube([catch_width, outer_diameter/2+overlap, thickness],center=true); // join sense unit holder to rin
-    }
+    
     cylinder(h=thickness, r=inner_diameter/2, center=true); // Ring hole
     
     // hole maker
-    //rotate([0,0,hole_angle])translate([0,-outer_diameter/2, 0])cube([inner_diameter*0.7,outer_diameter,thickness], center=true);
 
     #rotate([0,0,hole_angle])translate([0,0,-thickness/2])linear_extrude(height=thickness){
         r = outer_diameter/2;
