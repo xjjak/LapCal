@@ -4,6 +4,9 @@ index_dia = 14;
 middle_dia = 15;
 ring_dia = 14;
 pinky_dia = 12;
+thumb_hole_width = 75;
+thumb_hole_angle = -30;
+
 
 $fa = 1;
 $fs = 0.4;
@@ -57,11 +60,13 @@ module ring(inner_diameter, tolerance=0.2, hole_width_angle=75, hole_angle=0){
         translate([-fillet_x, fillet_y, 0])circle(fillet_rad);
         }
     }
+
     }
 }
 
 // Thumb
-ring(thumb_dia, hole_angle=-30);
+ring(thumb_dia, hole_width_angle=thumb_hole_width, hole_angle=thumb_hole_angle);
+
 // Index
 translate([-index_dia*1.5,0,0])
 ring(index_dia);
