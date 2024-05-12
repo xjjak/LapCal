@@ -6,8 +6,8 @@ The modules are divided into three categories modules relying on tensorflow, pyt
 
 # Modules
 
-## [TensorFlow](tensorflow/README.md)
+## [TensorFlow](tensorflow/)
 
-## [PyTorch](pytorch/README.md)
+## [PyTorch](pytorch/)
 
-## [Scikit-learn](sklearn/README.md)
+## [Scikit-learn](sklearn/)
