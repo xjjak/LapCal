@@ -6,16 +6,8 @@ The modules are divided into three categories modules relying on tensorflow, pyt
 
 # Modules
 
-## TensorFlow
+## [TensorFlow](tensorflow/README.md)
 
-### `metric.py`
+## [PyTorch](pytorch/README.md)
 
-This module provides the [proposed custom metric](https://github.com/xjjak/LapCal/issues/28) and some auxiliary metrics and functions.
-
-#### Functions
-
-##### `custom_metric(y_true, y_pred)`
-
-## PyTorch
-
-## Scikit-learn
+## [Scikit-learn](sklearn/README.md)
