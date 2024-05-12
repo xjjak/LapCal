@@ -5,7 +5,9 @@ sys.path.append(os.environ["LAPCAL_LIBS"])
 from pathlib import Path
 
 DATADIR = Path(os.environ["LAPCAL_DATA_DIR"])
-CACHE = DATADIR / "cache" / "traditional-grid-search-results.joblib"
+CACHE = DATADIR / "cache"
+os.makedirs(CACHE, exist_ok=True)
+CACHE_FILE = CACHE / "traditional-grid-search-results.joblib"
 SCORING = ("accuracy", "precision", "recall", "balanced_accuracy", "f1")
 REFIT = "f1"
 
@@ -39,7 +41,7 @@ _param_grid = [
     
 
 _scores, clf_logistic_regression = run_grid_search(
-    state_file         = CACHE,
+    state_file         = CACHE_FILE,
     model              = LogisticRegression(),
     initial_param_grid = _param_grid,
     scoring            = SCORING,
