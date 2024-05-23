@@ -41,34 +41,7 @@
       (set! name text)
       (send this on-paint))
 
-    (define (draw-plot canvas dc)
-      (let* ([width (send canvas get-width)]
-             [height (send canvas get-height)]
-             [values (let-values ([(left right) (vector-split-at buffer index)])
-                       (vector-append right left))]
-             [points (for/list ([x (inclusive-range (- 1 size) 0)]
-                                [y values])
-                       (cons x y))])
-        ;; (plot/dc (lines points)
-        ;;          dc 0 0
-        ;;          (send canvas get-width) (send canvas get-height)
-        ;;          #:x-label (format "Time (last ~s readings)" size)
-        ;;          #:x-min (- 1 size)
-        ;;          #:x-max 0
-        ;;          #:y-min min-value
-        ;;          #:y-max max-value
-        ;;          #:title name)
-
-        (send dc set-clipping-rect 10 10 (- 300 10) (- 300 10))
-        
-        ;; (writeln (let-values ([(l t w h) (send (send dc get-clipping-region) get-bounding-box)])
-        ;;            (cons (cons w h)
-        ;;                  (cons (send canvas get-width)
-        ;;                        (send canvas get-height)))
-        ;;            ))
-        (send dc clear)
-        ;; (send dc draw-lines points)
-        ))
+    (define default-pen #f)
     
     (super-new
      [parent parent]
@@ -88,9 +61,11 @@
             (let-values ([(w h c d) (send dc get-text-extent text)])
               h)))
         (define padding 5)
+
+        (unless default-pen
+          (set! default-pen (send dc get-pen)))
         
-        (let ([pen (send dc get-pen)]
-              [size-text (format "~s (~~~s s)" size (* 0.02 size))]
+        (let ([size-text (format "~s (~~~s s)" size (* 0.02 size))]
               [window-width
                (max 0
                 (- cwidth
@@ -102,9 +77,9 @@
               [y-zero (- cheight (* (/ (- min-value) (- max-value min-value))
                                     cheight))]
               [zero-text "0"])
-          (send dc set-pen (send pen get-color)
-                           (* 3 (send pen get-width))
-                           (send pen get-style))
+          (send dc set-pen (send default-pen get-color)
+                           (* 3 (send default-pen get-width))
+                           (send default-pen get-style))
           
           (send dc draw-text size-text 0 (- cheight (text-height size-text)))
 
@@ -115,8 +90,8 @@
                 (- cheight (text-height min-text)))
           (send dc draw-text max-text (+ window-width padding) 0)
 
-          (send dc set-pen (send pen get-color)
-                           (* 2(send pen get-width))
+          (send dc set-pen (send default-pen get-color)
+                           (* 2 (send default-pen get-width))
                            'long-dash)
           
           (send dc draw-line 0 y-zero window-width y-zero)
@@ -127,14 +102,16 @@
           ; draw the plot
           (send dc set-clipping-rect 0 0 window-width cheight)
           (send dc set-pen "red"
-                           (* 2 (send pen get-width))
-                           (send pen get-style))
+                           (* 2 (send default-pen get-width))
+                           (send default-pen get-style))
           (let* ([width window-width]
                  [height cheight]
                  [value-range (- max-value min-value)]
                  [remap-y (λ (y) (- height (* (/ (- y min-value) value-range)
                                               height)))]
-                 [remap-x (λ (x) (* width (/ (+ x (sub1 size)) (sub1 size))))]
+                 [remap-x (λ (x) (if (size . > . 1)
+                                     (* width (/ (+ x (sub1 size)) (sub1 size)))
+                                     (/ width 2)))]
                  [y-values (let-values ([(left right) (vector-split-at buffer index)])
                              (vector-append right left))]
                  [points (for/list ([x (inclusive-range (- 1 size) 0)]
@@ -143,7 +120,7 @@
             (send dc draw-lines points))
           (send dc set-clipping-region #f)
 
-          (send dc set-pen pen)))])
+          (send dc set-pen default-pen)))])
 
     (define/public (push value)
       (vector-set! buffer index value)
