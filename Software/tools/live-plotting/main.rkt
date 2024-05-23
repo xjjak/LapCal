@@ -5,11 +5,13 @@
 ;; TODO: add to config when changing text fields
 
 (require plot)
-(require "plot-canvas.rkt")
-(require "ble-serial.rkt")
-(require "parse.rkt")
-(require "volatile-message.rkt")
-(require "configuration.rkt")
+(require "gui/plot-canvas.rkt")
+(require "gui/ble-serial.rkt")
+(require "gui/volatile-message.rkt")
+
+(require "processing/parse.rkt")
+
+(require "configuation/configuration.rkt")
 
 (define default-selection '(0 0))
 (define default-size 100)
@@ -21,7 +23,6 @@
       (let ([cfg (generate-default-config)])
         (write-config cfg config-file)
         cfg)))
-(print config)
 
 (define sensor-index 0)
 (define value-index 0)
