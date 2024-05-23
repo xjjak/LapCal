@@ -2,11 +2,11 @@ use <Round-Anything/polyround.scad>
 
 
 overlap = 0.001;
-thumb_dia = 16;
-index_dia = 14;
-middle_dia = 15;
-ring_dia = 14;
-pinky_dia = 12;
+thumb_dia = 16.0;
+index_dia = 14.5;
+middle_dia = 15.5;
+ring_dia = 14.0;
+pinky_dia = 12.0;
 thumb_hole_width = 75;
 thumb_hole_angle = -30;
 
@@ -14,9 +14,10 @@ thumb_hole_angle = -30;
 $fa = 1;
 $fs = 0.4;
 
-module ring(inner_diameter, tolerance=0.2, hole_width_angle=75, hole_angle=0){
+module ring(inner_diameter, tolerance=1.5, hole_width_angle=75, hole_angle=0){
     tol = tolerance;
     strength = 1.5;
+    inner_diameter = inner_diameter + tolerance;
     outer_diameter = inner_diameter + strength*2;
     thickness = 2;
     pcb_width = 13;
