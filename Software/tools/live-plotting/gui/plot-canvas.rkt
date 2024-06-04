@@ -18,10 +18,11 @@
     (define index 0)
 
     (define/public (set-size new-size)
-      (set! size new-size)
-      (set! buffer (make-vector size 0))
-      (set! index 0)
-      (send this on-paint))
+      (unless (zero? new-size)
+        (set! size new-size)
+        (set! buffer (make-vector size 0))
+        (set! index 0)
+        (send this on-paint)))
     
     (define min-value internal-min-value)
     (define max-value internal-max-value)
