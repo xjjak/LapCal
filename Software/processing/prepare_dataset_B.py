@@ -1,70 +1,73 @@
-# === TYPE B ===
-# - 3 readings
-# - sin/cos variants of rotation
-# - labels are down presses
+from prepare_dataset_abc import DataPreparation
 
 import numpy as np
 from bisect import bisect_right
 from math import sin, cos
-
-# Constants subject to change
-N_READINGS = 3  # number of readings considered by model
 
 # Descriptive constants
 N_SENSORS = 6
 N_VALUES = 3 + 3 + 3  # 3 acc + 3 gyr sin + 3 gyr cos
 
 
-# Convert a single reading to its semantic python equivalent
-def reading_to_data(reading):
-    sensors = reading.split(":")
-    assert len(sensors) == N_SENSORS, f"{len(sensors)} Sensors???"
-    data = []
+class SingleTrigBuffer(DataPreparation):
+    """=== TYPE B ===
+    - 3 readings
+    - sin/cos variants of rotation
+    - labels are down presses"""
 
-    for sensor in reading.split(":"):
-        # sensor malfunctioning
-        if sensor == "-":
-            data.extend([0] * 9)
-        else:
-            values = sensor.split(";")
-            data.extend(
-                [float(value) for value in values[:3]]
-                + [sin(float(value)) for value in values[3:]]
-                + [cos(float(value)) for value in values[3:]]
-            )
+    def __init__(self, n_readings=3):
+        self.n_readings = n_readings
 
-    return data
+    def get_name(self):
+        return "single-trig-buffer"
 
+    def reading_to_data(self, reading):
+        """Convert a single reading to its semantic python equivalent."""
 
-# Process readings to features and labels (dataset)
-def prepare_dataset_press(readings, clicks):
-    n_samples = len(readings) - N_READINGS
-    n_features = N_READINGS * N_SENSORS * N_VALUES
+        sensors = reading.split(":")
+        assert len(sensors) == N_SENSORS, f"{len(sensors)} Sensors???"
+        data = []
 
-    X = np.zeros(shape=(n_samples, n_features))
-    y = np.zeros(shape=(n_samples,))  # FIXME: ",)" or ", 1)"
+        for sensor in reading.split(":"):
+            # sensor malfunctioning
+            if sensor == "-":
+                data.extend([0] * 9)
+            else:
+                values = sensor.split(";")
+                data.extend(
+                    [float(value) for value in values[:3]]
+                    + [sin(float(value)) for value in values[3:]]
+                    + [cos(float(value)) for value in values[3:]]
+                )
 
-    # Labels
-    clicks = list(filter(lambda x: x[0] < readings[n_samples - 1][0], clicks))
-    for click_index in range(len(clicks)):
-        flag, col, row = clicks[click_index][1].split(",")
-        flag, col, row = bool(int(flag)), int(col), int(row)
+        return data
 
-        index = bisect_right(readings, clicks[click_index]) - N_READINGS
-        if flag and index >= 0:
-            y[index] = 1
+    def prepare_dataset(self, readings, clicks):
+        """Process readings to features and labels (dataset)."""
 
-    # Features
-    for sample_index in range(n_samples):
-        for reading in range(N_READINGS):
-            start = reading * (N_SENSORS * N_VALUES)
-            end = start + (N_SENSORS * N_VALUES)
-            X[sample_index, start:end] = reading_to_data(
-                readings[sample_index + reading][1]
-            )
+        n_samples = len(readings) - self.n_readings
+        n_features = self.n_readings * N_SENSORS * N_VALUES
 
-    return (X, y)
+        X = np.zeros(shape=(n_samples, n_features))
+        y = np.zeros(shape=(n_samples,))  # FIXME: ",)" or ", 1)"
 
+        # Labels
+        clicks = list(filter(lambda x: x[0] < readings[n_samples - 1][0], clicks))
+        for click_index in range(len(clicks)):
+            flag, col, row = clicks[click_index][1].split(",")
+            flag, col, row = bool(int(flag)), int(col), int(row)
 
-# --- EXPORT ---
-export = [prepare_dataset_press]
+            index = bisect_right(readings, clicks[click_index]) - self.n_readings
+            if flag and index >= 0:
+                y[index] = 1
+
+        # Features
+        for sample_index in range(n_samples):
+            for reading in range(self.n_readings):
+                start = reading * (N_SENSORS * N_VALUES)
+                end = start + (N_SENSORS * N_VALUES)
+                X[sample_index, start:end] = self.reading_to_data(
+                    readings[sample_index + reading][1]
+                )
+
+        return (X, y)
