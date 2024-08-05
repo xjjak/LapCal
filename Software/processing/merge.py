@@ -1,6 +1,9 @@
 #!/usr/bin/env nix-shell
 #! nix-shell shell.nix -i python3
 
+# TODO: consider multiple readings as seperate array instead of
+#   continuous buffer.
+
 # TODO: (unit) tests
 
 import sys
