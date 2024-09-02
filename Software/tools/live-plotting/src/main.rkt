@@ -1,21 +1,43 @@
 ;; -*- eval: (setenv "LD_LIBRARY_PATH" "/home/palisn/.nix-profile/lib") -*-
 #lang racket/gui
 
-;; TODO: add to config when changing text fields (at least at runtime)
+;; TODO: more global variables as parameters
 
+
+;; TODO: add to config when changing text fields (at least at runtime)
 (require "gui/plot-canvas.rkt")
 (require "gui/live-interface.rkt")
 (require "gui/canvas-configurator.rkt")
 
 (require "configuration/configuration.rkt")
 
-(define config-file "config.json")
+;; read arguments
+(require racket/cmdline)
+(require racket/file)
+
+(define config-file (make-parameter #f))
+
+(command-line
+ #:program "PROGRAM"
+ #:usage-help
+ "This program provides a graphical interface for"
+ "viewing LapCal data both live and recorded."
+ #:once-each
+ [("-c" "--config") file
+                    "Pass canvas parameters as JSON configuration file"
+                    (config-file file)]
+ #:args () (void))
+
 (define config
-  (if (file-exists? config-file)
-      (load-config config-file)
-      (let ([cfg (generate-default-config)])
-        (write-config cfg config-file)
-        cfg)))
+  (let ([file (config-file)])
+    (cond
+      [(not (path-string? file)) (generate-default-config)]
+      [(file-exists? file) (begin (printf "Loading config file from ~s~n" file)
+                                  (load-config file))]
+      [else (let ([cfg (generate-default-config)])
+              (printf "Created default config file at ~s~n" file)
+              (write-config cfg file)
+              cfg)])))
 
 (define sensor-index 0)
 (define value-index 0)

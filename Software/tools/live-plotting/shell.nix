@@ -27,6 +27,7 @@ pkgs.mkShellNoCC {
     
     ble-serial
     python311
+    bash
   ];
 
   /*
