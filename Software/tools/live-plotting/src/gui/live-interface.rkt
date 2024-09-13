@@ -69,6 +69,7 @@
                                 (define testing-interval 50)
                                 
                                 (let loop ([i testing-interval])
+                                  ;; TODO: move parse handling elsewhere
                                   (let* ([str (read-line in)]
                                          [data (parse str)]
                                          [row (if (vector? data) (vector-ref data sensor-index) #f)]
