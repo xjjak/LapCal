@@ -48,8 +48,8 @@ void setup(){
     digitalWrite(LED_BLUE, HIGH);
     Serial.begin(115200);
 
-    char headerline[500];
-    headerline[0] = (char)0;
+    // char headerline[500];
+    // headerline[0] = (char)0;
 
     Serial.println("Initialising i2c");
     setup_i2c(SDA, SCL);
