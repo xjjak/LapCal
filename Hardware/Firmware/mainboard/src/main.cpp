@@ -56,7 +56,6 @@ void setup(){
     
     // ------SETUP SENSORS-------
     Serial.println("Setting up Sensors");
-
     setup_sensors();
     
     // ------SETUP SD------------
@@ -65,8 +64,8 @@ void setup(){
     // sprintf(headerline, "%d", unix_timestamp);
     //strcat(headerline, unix_timestamp);
     //setup_sdcard(unix_timestamp);
-    
     //write_values(headerline);
+    
     digitalWrite(LED_BLUE, LOW);
     digitalWrite(LED_GREEN, HIGH);
 
@@ -80,6 +79,7 @@ void setup(){
         xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
         Serial.println("Parallelization enabled.");
     }
+    
     pCharacteristic = setup_ble();
     
     timer_battery_check.start();
@@ -92,18 +92,10 @@ void setup(){
     // get_all_readings(all_readings);
     // format_readings(all_readings, all_readings_charbuf);
     // Serial.print(".");
+    // ble_transmit_values(pCharacteristic, all_readings, milli_timestamp);
     // write_values(all_readings_charbuf);
     // Serial.print("Millis taken: "); Serial.println(millis() - prev_millis);
-
-     uint32_t prev_millis = millis();
-     get_all_readings(all_readings);
-    // format_readings(all_readings, all_readings_charbuf);
-     Serial.print("Millis taken: "); Serial.println(millis() - prev_millis);
-     ble_transmit_values(pCharacteristic, all_readings, milli_timestamp);
-    // Serial.print(".");
-    // write_values(all_readings_charbuf);
-    
-}
+    }
 
 
 void loop(){
