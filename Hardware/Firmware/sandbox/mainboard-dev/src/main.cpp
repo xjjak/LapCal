@@ -1,5 +1,12 @@
 #include <Arduino.h>
 
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEServer.h>
+
+#define SERVICE_UUID "f5aea478-9ec3-4bcf-af20-7f75e7c68c9d"
+#define CHARACTERISTIC_UUID "68bf07fb-d00b-4c80-a796-f8be82b5dea7"
+
 // #include <i2cdev.h>
 // #include <MPU6050.h>
 #include "MPU6050_6Axis_MotionApps20.h"
@@ -10,7 +17,7 @@
 #define LED_GREEN 33
 #define LED_BLUE 13
 
-#define SDA 21
+#define SDA 23
 #define SCL 22
 
 #define SENSOR_COUNT 5
@@ -33,6 +40,12 @@ VectorFloat gravity;    // [x, y, z]            gravity vector
 float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
+byte reading_data_array[12];
+
+BLEServer *pServer;
+BLEService *pService;
+BLECharacteristic* pCharacteristic;
+
 
 // Select I2C BUS
 void tca_select(uint8_t bus){
@@ -41,9 +54,29 @@ void tca_select(uint8_t bus){
   Wire.endTransmission();
 }
 
+void format_reading(byte *reading_data, uint16_t ax, uint16_t ay, uint16_t az,uint16_t gx,uint16_t gy,uint16_t gz){
+  //byte reading_data[12];
+
+  reading_data[0] = ax >> 8 & 0xFF;
+  reading_data[1] = ax & 0xFF;
+  reading_data[2] = ay >> 8 & 0xFF;
+  reading_data[3] = ay & 0xFF;
+  reading_data[4] = az >> 8 & 0xFF;
+  reading_data[5] = az & 0xFF;
+  reading_data[6] = gx >> 8 & 0xFF;
+  reading_data[7] = gx & 0xFF;
+  reading_data[8] = gy >> 8 & 0xFF;
+  reading_data[9] = gy & 0xFF;
+  reading_data[10] = gz >> 8 & 0xFF;
+  reading_data[11] = gz & 0xFF;
+  
+
+  
+}
+
 
 void setup_mpu(MPU6050 mpu, int id) {
-    tca_select(id);
+  //tca_select(id);
     mpu.initialize();
 
     // verify connection
@@ -109,42 +142,73 @@ void sense_readings(MPU6050 mpu) {
     mpu.dmpGetAccel(&aa, fifoBuffer);
     mpu.dmpGetGravity(&gravity, &q);
     mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-    float x = aaReal.x;
-    float y = aaReal.y;
-    float z = aaReal.z;
+    uint16_t x = aaReal.x;
+    uint16_t y = aaReal.y;
+    uint16_t z = aaReal.z;
 
     // Serial.println("here they are:");
     //
+    float xx = aaReal.x;
     char buf[100];
-    sprintf(buf,"%.2f;%.2f;%.2f", x,y,z);
+    // sprintf(buf,"%d;%d;%d", x,y,z);
+    sprintf(buf,"%.2f;%d;%d", xx,y,z);
+    format_reading(reading_data_array, x, y, z, 0, 0, 0);
     // Serial.println(x);
     // Serial.println(y);
     // Serial.println(z);
     Serial.println(buf);
 }
 
+class someCallback : public BLECharacteristicCallbacks {
+  void onRead(BLECharacteristic* pCharacteristic) {
+    Serial.println("Characteristic was read");
+  }
+};
+
+//class serverCallback : public BLEServerCallbacks {
+//void onConnect(BLEServer* pServer){
+    
+//}
+//};
 
 void setup() {
-  pinMode(LED_BLUE, OUTPUT);
-  pinMode(LED_GREEN, OUTPUT);
+  //byte data[20] = {0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42};
+  byte data[40] = {0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42, 0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42,0x42};
+  //uint16_t data = 0x42 << 8 | 0x42;
+  //  pinMode(LED_BLUE, OUTPUT);
+  // pinMode(LED_GREEN, OUTPUT);
 
-  digitalWrite(LED_BLUE, HIGH);
+  // digitalWrite(LED_BLUE, HIGH);
   Serial.begin(115200);
 
   // ------SETUP SD------------
   // setup_SD();
 
-  Serial.println("Initialising i2c");
+  // Serial.println("Initialising i2c");
   Wire.begin(SDA, SCL); // Setup i2c channel on defined pins
 
   setup_mpu(sense1, 0);
+  BLEDevice::init("LapCal Test");
+  //BLEServer* pServer = BLEDevice::createServer();
+  pServer = BLEDevice::createServer();
+  //BLEService* pService = pServer->createService(SERVICE_UUID);
+  pService = pServer->createService(SERVICE_UUID);
+  //BLECharacteristic* pCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
+  pCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+  pCharacteristic->setCallbacks(new someCallback());
+  pCharacteristic->setValue(data, 40);
 
+  pService->start();
 
-
+  BLEAdvertising* pAdvertising = pServer->getAdvertising();
+  pAdvertising->start();
 }
 
 
 void loop() {
   sense_readings(sense1);
-  delay(200);
+  //delay(200);
+  pCharacteristic->setValue(reading_data_array, 12);
+  pCharacteristic->notify();
+  delay(10);
 }
