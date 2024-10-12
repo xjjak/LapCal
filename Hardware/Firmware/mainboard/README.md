@@ -14,3 +14,5 @@ The data is in a binary format:
 - timestamp: `uint64_t`
 - Values: `int16_t` for each value of each sensor (36) 
   *caution: signed integer*
+  
+Use with the ble-receiver script found in the `tools` folder.
