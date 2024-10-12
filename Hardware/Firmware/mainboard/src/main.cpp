@@ -8,12 +8,12 @@
 #include "sdcard.h"
 #include "touch.h"
 #include "sensors.h"
+
+#if BLE
 #include "ble-utils.h"
 
-// #include <BLEDevice.h>
-// #include <BleSerial.h>
-// BleSerial ble;
 BLECharacteristic *pCharacteristic;
+#endif
 
 // ------ TICKERS ------
 #include <TickTwo.h>
@@ -30,7 +30,7 @@ reading all_readings[SENSOR_COUNT];
 char all_readings_charbuf[SENSOR_COUNT*201];
 
 char unix_timestamp[60];
-uint64_t timestamp_num;
+//uint64_t timestamp_num;
 uint64_t milli_timestamp;
 
 TaskHandle_t TaskFifoReset;
@@ -79,9 +79,10 @@ void setup(){
         xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
         Serial.println("Parallelization enabled.");
     }
-    
+
+    #if BLE
     pCharacteristic = setup_ble();
-    
+    #endif
     timer_battery_check.start();
 
 
@@ -95,24 +96,21 @@ void setup(){
     // ble_transmit_values(pCharacteristic, all_readings, milli_timestamp);
     // write_values(all_readings_charbuf);
     // Serial.print("Millis taken: "); Serial.println(millis() - prev_millis);
-    }
+     
+}
 
 
 void loop(){
-    // Serial.println("Sensing.");
-  if (is_ble_connected()){
-    //    Serial.println("Getting readings");
+    #if BLE
+      if (is_ble_connected()){
+        get_all_readings(all_readings);
+        ble_transmit_values(pCharacteristic, all_readings, milli_timestamp);
+      }
+    #else
       get_all_readings(all_readings);
-      //      format_readings(all_readings, all_readings_charbuf, milli_timestamp);
-      //Serial.println(all_readings_charbuf);
-
-      //      ble_transmit_values(pCharacteristic, all_readings, timestamp_num);
-      ble_transmit_values(pCharacteristic, all_readings, milli_timestamp);
-  } //else {
-  //Serial.print('.');
-  //}
-
-    
+      format_readings(all_readings, all_readings_charbuf, milli_timestamp);
+      Serial.println(all_readings_charbuf);
+    #endif
    
     // Serial.println("Checking bat_stat");
     if (check_bat_flag){
