@@ -56,7 +56,6 @@ class BleEventCallbacks : public BLEServerCallbacks {
     ble_is_connected = 1;
     Serial.println("Connection established.");
     digitalWrite(LED_BLUE, HIGH);
-    Serial.println("enabled led");
     //pBleAdvertising->stop();
   }
   void onDisconnect(BLEServer* server){
@@ -66,10 +65,10 @@ class BleEventCallbacks : public BLEServerCallbacks {
   }
 };
 
-class BleCharacteristicCallbacks : public BLECharacteristicCallbacks {
-  void onRead(BLECharacteristic *pCharacteristic){
-  }
-};
+//class BleCharacteristicCallbacks : public BLECharacteristicCallbacks {
+//  void onRead(BLECharacteristic *pCharacteristic){
+//  }
+//};
 
 BLECharacteristic* setup_ble() {
   ble_is_connected = 0;
@@ -80,7 +79,7 @@ BLECharacteristic* setup_ble() {
   pBleCharacteristic =
     pBleService->createCharacteristic(characteristic_uuid, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
   pBleServer->setCallbacks(new BleEventCallbacks());
-  pBleCharacteristic->setCallbacks(new BleCharacteristicCallbacks());
+  //pBleCharacteristic->setCallbacks(new BleCharacteristicCallbacks());
   pBleCharacteristic->setValue({0x42});
   pBleService->start();
 

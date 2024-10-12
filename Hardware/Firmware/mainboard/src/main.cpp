@@ -40,7 +40,6 @@ void print_headerline(){
 
 
 void setup(){
-  //ble_is_connected = 0;
     pinMode(LED_BLUE, OUTPUT);
     pinMode(LED_GREEN, OUTPUT);
     pinMode(SD_DETECT, INPUT);
