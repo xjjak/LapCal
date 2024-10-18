@@ -5,4 +5,6 @@ This script can be used as a drop-in replacement for ble-serial for receiving da
 
 ## Flags
 - `-d`: Specify the MAC-Address for the BLE-Server
-- Optional: `-m, --micros`: Add 3 zeros to the end of the timestamp for microsecond format. This is inaccurate though.
+- Optional: 
+  - `-m, --micros`: Add 3 zeros to the end of the timestamp for microsecond format. This is inaccurate though.
+  - `-f, --file` All output is redirected to file at give path. (Useful for compatiblity with live-plotting by passing `/tmp/ttyBLE`)

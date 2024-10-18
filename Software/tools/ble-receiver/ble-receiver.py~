@@ -1,29 +1,15 @@
-#!/bin/python
-
-import sys
-import os
-import atexit
 import asyncio
 from bleak import BleakClient
 
+address = "08:3A:8D:0F:35:2A"
 DATA_UUID = "68bf07fb-d00b-4c80-a796-f8be82b5dea7"
 
-def exit_handler():
-    if output_to_file:
-        sys.stdout.close()
-        os.remove(file_path)
-
-
 async def callback(sender, data: bytearray):
-    #print(f"{data.hex()}")
+  #  global client
+    print(f"{data.hex()}")
     timestamp = int.from_bytes(data[:8], byteorder='big', signed=False)
-    if not micros_format:
-        out = [timestamp]
-        out_str = str(timestamp) + ':'
-    else:
-        out = [timestamp * 1000] 
-        out_str = str(timestamp) + "000:"
-   
+    out = [timestamp]
+    out_str = str(timestamp) + ':'
     for i in range(0,36):
         s = 8+2*i
         out.append(int.from_bytes(data[s:s+2], byteorder='big', signed=True))
@@ -33,7 +19,16 @@ async def callback(sender, data: bytearray):
             out_str += str(out[i+1]) + ':'
         else:
             out_str += str(out[i+1]) + ';'
-    print(out_str, flush=True)
+    print(out_str)
+
+#        print(str(data[s:s+2]) + "  " + str(int.from_bytes(data[s:s+2], byteorder='big', signed=True)))
+#    print(f"{data[:8].hex()}")
+  
+   # await client.read_gatt_char(DATA_UUID)
+#    number = await client.read_gatt_char(DATA_UUID)
+ #   print(number.hex())
+    
+
 
 
 async def main(address):
@@ -50,25 +45,6 @@ async def main(address):
    finally:
        await client.disconnect()
        
+#        print("Model Number: {0}".format("".join(map(chr, model_number))))
 
-address = ""
-micros_format = False
-output_to_file = False
-file_path = ""
-
-for j, i in enumerate(sys.argv[1:]):
-    if i == "-d":
-        address = sys.argv[j+2]
-    elif i == "-m" or i == "--micros":
-        micros_format = True
-    elif i == "-f" or i == "--file":
-        output_to_file = True
-        file_path = sys.argv[j+2]
-        sys.stdout = open(file_path, 'wt')
-
-atexit.register(exit_handler)
-        
-if address != "":
-    asyncio.run(main(address))
-else:
-    print("Pass the MAC Address using flag '-d'")
+asyncio.run(main(address))
