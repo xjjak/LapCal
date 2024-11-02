@@ -1,2 +1,5 @@
 .pio
 wifi.ini
+.ccls
+.projectile
+*~
