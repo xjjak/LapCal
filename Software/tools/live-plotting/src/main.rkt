@@ -1,4 +1,3 @@
-;; -*- eval: (setenv "LD_LIBRARY_PATH" "/home/palisn/.nix-profile/lib") -*-
 #lang racket/gui
 
 ;; TODO: more global variables as parameters

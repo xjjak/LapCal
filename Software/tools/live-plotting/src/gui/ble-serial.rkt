@@ -1,27 +1,41 @@
 #lang racket/gui
 
-(provide ble-serial-controller%)
+;; gui controller to find and connect to bluetooth devices
+
+(provide
+ ;; gui controller to find and connect to bluetooth devices
+ ble-serial-controller%)
+
+;; ==============
+;; implementation
 
 (define ble-serial-controller%
   (class vertical-panel%
     (init parent
-          message-callback)
+          ;; callback for user feedback
+          [message-callback displayln]
+          ;; function that returns available bluetooth devices
+          [scan-function ble-serial-scan])
+    
     (super-new [parent parent]
                [stretchable-height #f])
 
-    (define msg message-callback)
-    
-    (define ble-devices empty)
-    (define connection #f)
+    ;; ----------------
+    ;; public interface
 
+    ;; halt the current connection
     (define/public (disconnect)
-      (when connection
-        (thread-send connection 'exit)
-        (thread-wait connection)))
+      (when connection-thread
+        (thread-send connection-thread 'exit)
+        (thread-wait connection-thread)))
 
+
+    ;; ------------
+    ;; gui elements
+    
     (define ble-device-selector
       (new choice% [parent this]
-           [choices ble-devices]
+           [choices empty]
            [label "BLE Device: "]
            [stretchable-width #t]))
 
@@ -30,76 +44,117 @@
            [label "Scan for BLE devices"]
            [stretchable-width #t]
            [callback
-            (λ (b c)
-              (thread
-               (λ ()
-                 (send b enable #f)
-                 (send ble-device-selector enable #f)
-                 (send ble-device-selector clear)
-                 (set! ble-devices empty)
-                 
-                 (let ([lines (filter
-                               (λ (line) (string-contains? line "rssi="))
-                               (port->lines (first (process "ble-scan"))))])
-                   (for-each (λ (line) (send ble-device-selector append line))
-                             lines)
-                   (set! ble-devices
-                         (map (λ (line) (first (string-split line)))
-                              lines)))
-                 
-                 (send b enable #t)
-                 (send ble-device-selector enable #t))))]))
+            (λ _ (thread scan-for-devices))]))
 
     (define connect-button
       (new button% [parent this]
            [label "Connect"]
            [stretchable-width #t]
            [callback
-            (λ (b c)
-              (define ble-controls (list ble-device-selector
-                                         scan-button))
-              (define (reset-connection)
-                (map (λ (control) (send control enable #t)) ble-controls)
-                (send b set-label "Connect")
-                (set! connection #f))
-              
-              (if connection
-                  (begin
-                    (send b enable #f)
-                    (thread-send connection 'exit)
-                    (reset-connection))
-                  (begin
-                    (map (λ (control) (send control enable #f)) ble-controls)
-                    (send b set-label "Disconnect")
+            (λ _
+              (if connection-thread
+                  (ble-disconnect)
+                  (set! connection-thread (thread ble-connect))))]))
 
-                    (set!
-                     connection
-                     (thread
-                      (λ ()
-                        (define selected-device (send ble-device-selector get-selection))
-                        (match-define
-                          (list in out pid err handle)
-                          (process/ports
-                           (open-output-file "/dev/stdout" #:exists 'append) #f 'stdout
-                           (format "ble-serial -d \"~a\"" ; "ble-serial -d 08:3A:8D:0F:35:72"
-                                   (list-ref ble-devices selected-device))))
-                        (let loop ()
-                          (match (thread-try-receive)
-                            ['exit
-                             (handle 'interrupt)
-                             (sleep 0.5)
-                             (handle 'interrupt)
-                             (msg "Connection is terminating...")
-                             (let still-running ()
-                               (when (eq? (handle 'status) 'running)
-                                 (sleep 0.1)
-                                 (still-running)))
-                             (send b enable #t)
-                             (msg "Connection is terminated.")]
-                            [_
-                             (if (eq? (handle 'status) 'running)
-                                 (begin
-                                   (sleep 0.1)
-                                   (loop))
-                                 (msg "Could not maintain the connection."))]))
-                        (reset-connection)))))))]))))
+    
+    ;; ---------------
+    ;; class variables
+    
+    ;; function to report to the user
+    (define msg message-callback)
+
+    ;; class wide list of ble device mac addresses
+    (define mac-ble-devices empty)
+
+    ;; thread monitoring an active connection
+    (define connection-thread #f)
+
+    ;; all ui elements that should be inaccessible when a ble device
+    ;; is connected
+    (define ble-search-controls (list ble-device-selector
+                                      scan-button))
+
+
+    ;; --------------------------
+    ;; connection thread handling
+
+    (define (connection-thread-event-handler handle)
+      (let loop ()
+        (match (thread-try-receive)
+          ['exit
+           ;; send SIGINT to let process gracefully terminate
+           (handle 'interrupt)
+           (sleep 0.5)
+           ;; NOTE: ble-serial requires two SIGINT signals to actually
+           ;; terminate
+           (handle 'interrupt)
+           (msg "Connection is terminating...")
+           (handle 'wait)
+           (send connect-button enable #t)
+           (msg "Connection is terminated.")]
+          [_
+           ;; periodically check if process is still running
+           (if (eq? (handle 'status) 'running)
+               (begin
+                 (sleep 0.1)
+                 (loop))
+               (msg "Could not maintain the connection."))]))
+      ;; cleanup connection after thread death
+      (ble-disconnect))
+
+
+    ;; ------------------
+    ;; scanning utilities
+    
+    (define (scan-for-devices)
+      (send scan-button enable #f)
+      (send ble-device-selector enable #f)
+      (send ble-device-selector clear)
+      (set! mac-ble-devices
+            (for/list ([device (scan-function)])
+              (send ble-device-selector append (car device))
+              (cdr device)))
+      (send ble-device-selector enable #t)
+      (send scan-button enable #t))
+
+    
+    ;; ------------------------
+    ;; ble connection utilities
+    
+    (define (ble-disconnect)
+      (when (thread? connection-thread)
+        (send connect-button enable #f)
+        (thread-send connection-thread 'exit))
+      (for ([blectl ble-search-controls]) (send blectl enable #t))
+      (send connect-button set-label "Connect")
+      (set! connection-thread #f))
+
+    (define (ble-connect)
+      (for ([blectl ble-search-controls]) (send blectl enable #f))
+      (send connect-button set-label "Disconnect")
+      (define selected-device (send ble-device-selector get-selection))
+      (if (null? selected-device)
+          (msg "No device selected.")
+          (match-let* ([stdout (open-output-file "/dev/stdout"
+                                                 #:exists 'append)]
+                       [mac (list-ref mac-ble-devices selected-device)]
+                       [cmd (format "ble-serial -d \"~a\"" mac)]
+                       [(list _ _ _ _ handle)
+                        (process/ports stdout #f 'stdout cmd)])
+            (connection-thread-event-handler handle))))))
+
+;; --------------
+;; scan functions
+
+(define (ble-serial-scan)
+  (match-let ([(list stdout _ _ _ handle) (process "ble-scan")])
+    (sleep 0.1)
+    (cond
+      [(eq? (handle 'status) 'running)
+         (for/list ([line (port->lines stdout)]
+                    #:when (string-contains? line "rssi="))
+            (let ([desc line]
+                  [mac (first (string-split line))])
+              (cons desc mac)))]
+      [else #f])))
+
