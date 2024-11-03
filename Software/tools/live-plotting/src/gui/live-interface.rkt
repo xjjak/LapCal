@@ -18,6 +18,8 @@
 (define live-interface%
   (class vertical-panel%
     (init parent
+          ;; class that implements the ble-controller<%> interface (see ble-serial.rkt)
+          ble-controller%
           ;; callback on new input from glove
           [(callback on-input)]
           ;; default indices for plot source
@@ -71,7 +73,7 @@
     
     ;; controls bluetooth connection
     (define ble-controller
-      (new ble-serial-controller% [parent this]
+      (new ble-controller% [parent this]
            [message-callback msg]))
 
     ;; button to toggle plotting
@@ -132,7 +134,7 @@
     ;; setup thread function
     (define thread-fn
       (ble-serial-input #:processing-loop plotting-loop
-                        #:ble-serial-port "/tmp/ttyBLE"
+                        #:ble-controller ble-controller
                         #:error (λ (str #:lock lock)
                                   (when lock
                                     (send ble-controller enable #f))
@@ -146,26 +148,18 @@
 
 ;; generate thread function that uses the ble-serial data source
 (define (ble-serial-input #:processing-loop processing-loop
-                          #:ble-serial-port [ble-serial-port "/tmp/ttyBLE"]
+                          #:ble-controller ble-controller
                           #:error [error void])
-  ;; check if ble-serial is available
-  (cond
-    [(file-exists? ble-serial-port)
-     (error "Port busy.\n Connection probably already established."
-            #:lock #t)]
-    [(not (system "command -v ble-serial"))
-     (error "Can't find ble-serial.\nPlease setup the port yourself."
-            #:lock #t)])
-
   ;; return thread function
   (λ ()
+    (define input-port (send ble-controller get-ble-input-port))
     (cond
-      [(file-exists? ble-serial-port)
-       (let* ([port (open-input-file ble-serial-port)])
-         (processing-loop (port-reader port))
-         (close-input-port port))]
+      [(and (input-port? input-port)
+            (not (port-closed? input-port)))
+       (processing-loop (port-reader input-port))
+       (close-input-port input-port)]
       [else
-       (error (format "Serial port (~a) not found." ble-serial-port)
+       (error (format "Serial port (~a) not found." input-port)
               #:lock #f)])))
 
 ;; ----------------

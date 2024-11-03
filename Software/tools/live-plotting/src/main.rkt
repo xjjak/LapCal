@@ -7,6 +7,7 @@
 (require "gui/plot-canvas.rkt")
 (require "gui/live-interface.rkt")
 (require "gui/canvas-configurator.rkt")
+(require "gui/ble-serial.rkt")
 
 (require "configuration/configuration.rkt")
 
@@ -72,6 +73,7 @@
 
 
 (define live-interface (new live-interface% [parent sidebar]
+                            [ble-controller% ble-serial-controller%]
                             [on-input
                              (λ (value) (send plotter push value))]
                             [default-sensor-index sensor-index]
@@ -95,11 +97,17 @@
           (send plotter set-min-value min-value)
           (send plotter set-max-value max-value))]))
 
-(define live-tab
+(define live-binary-ble-tab
   ((hash-ref tab-builder 'create)
-   #:name "Live"
+   #:name "Live (binary)"
    #:children
-   (let* ([canvas-configurator
+   (let* (#;[live-interface
+           (new live-interface% [parent sidebar]
+                            [on-input
+                             (λ (value) (send plotter push value))]
+                            [default-sensor-index sensor-index]
+                            [default-value-index value-index])]
+          [canvas-configurator
            (make-canvas-configurator
             (λ (sensor-idx value-idx size min-value max-value)
               (send live-interface set-sensor sensor-idx)
@@ -113,6 +121,24 @@
    #:children
    (let* ([canvas-configurator (make-canvas-configurator void)])
      (list canvas-configurator))))
+
+(define live-string-ble-tab
+  ((hash-ref tab-builder 'create)
+   #:name "Live (legacy)"
+   #:children
+   (let* (#;[live-interface
+           (new live-interface% [parent sidebar]
+                            [on-input
+                             (λ (value) (send plotter push value))]
+                            [default-sensor-index sensor-index]
+                            [default-value-index value-index])]
+          [canvas-configurator
+           (make-canvas-configurator
+            (λ (sensor-idx value-idx size min-value max-value)
+              (send live-interface set-sensor sensor-idx)
+              (send live-interface set-value value-idx)))])
+     (list live-interface
+           canvas-configurator))))
 
 
 ;; make all tab widgets invisible
