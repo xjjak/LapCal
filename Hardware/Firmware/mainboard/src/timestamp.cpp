@@ -23,7 +23,7 @@ const char* password = STRINGIFY(WIFI_PASS);
 const char* ntpServer = "de.pool.ntp.org";
 
 // Variable to save current epoch time
-unsigned long epochTime; 
+unsigned long epochTime;
 
 char timestamp_at_boot[60];
 

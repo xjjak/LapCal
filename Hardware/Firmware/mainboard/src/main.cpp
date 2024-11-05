@@ -52,11 +52,11 @@ void setup(){
 
     Serial.println("Initialising i2c");
     setup_i2c(SDA, SCL);
-    
+
     // ------SETUP SENSORS-------
     Serial.println("Setting up Sensors");
     setup_sensors();
-    
+
     // ------SETUP SD------------
     //gen_timestamp(unix_timestamp, &timestamp_num);
     //Serial.println(unix_timestamp);
@@ -64,7 +64,7 @@ void setup(){
     //strcat(headerline, unix_timestamp);
     //setup_sdcard(unix_timestamp);
     //write_values(headerline);
-    
+
     digitalWrite(LED_BLUE, LOW);
     digitalWrite(LED_GREEN, HIGH);
 
@@ -72,11 +72,11 @@ void setup(){
     milli_timestamp = get_milli_timestamp();
     //milli_timestamp = 1010101010;
     Serial.println(milli_timestamp);
-    
+
     // ------Parallelization setup------
     if (MULT_CORE){
-        xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
-        Serial.println("Parallelization enabled.");
+	xTaskCreatePinnedToCore(task_fifo_reset, "fifo_resets", 10000, NULL, 1, &TaskFifoReset, 0);
+	Serial.println("Parallelization enabled.");
     }
 
     #if BLE
@@ -95,27 +95,27 @@ void setup(){
     // ble_transmit_values(pCharacteristic, all_readings, milli_timestamp);
     // write_values(all_readings_charbuf);
     // Serial.print("Millis taken: "); Serial.println(millis() - prev_millis);
-     
+
 }
 
 
 void loop(){
     #if BLE
       if (is_ble_connected()){
-        get_all_readings(all_readings);
-        ble_transmit_values(pCharacteristic, all_readings, milli_timestamp);
+	get_all_readings(all_readings);
+	ble_transmit_values(pCharacteristic, all_readings, milli_timestamp);
       }
     #else
       get_all_readings(all_readings);
       format_readings(all_readings, all_readings_charbuf, milli_timestamp);
       Serial.println(all_readings_charbuf);
     #endif
-   
+
     // Serial.println("Checking bat_stat");
     if (check_bat_flag){
     // Serial.println("Checking bat...");
-        check_battery();
-        check_bat_flag = false;
+	check_battery();
+	check_bat_flag = false;
     }
 
     // Serial.println("detecting touch");
