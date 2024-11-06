@@ -4,7 +4,7 @@ import sys
 import os
 import atexit
 import asyncio
-from bleak import BleakClient
+from bleak import BleakClient, BleakScanner
 
 DATA_UUID = "68bf07fb-d00b-4c80-a796-f8be82b5dea7"
 
@@ -13,6 +13,12 @@ def exit_handler():
         sys.stdout.close()
         os.remove(file_path)
 
+async def scan():
+    scanner = BleakScanner()
+    devices = await scanner.discover()
+    for device in devices:
+        print(device.address + " name: " + device.name)
+    
 
 async def callback(sender, data: bytearray):
     #print(f"{data.hex()}")
@@ -56,9 +62,13 @@ if __name__ == '__main__':
     micros_format = False
     output_to_file = False
     file_path = ""
+    do_scan = False
 
     for j, i in enumerate(sys.argv[1:]):
-        if i == "-d":
+        if i == "-s" or i == "--scan":
+            do_scan = True
+            break
+        elif i == "-d":
             address = sys.argv[j+2]
         elif i == "-m" or i == "--micros":
             micros_format = True
@@ -68,8 +78,9 @@ if __name__ == '__main__':
             sys.stdout = open(file_path, 'wt')
 
     atexit.register(exit_handler)
-
-    if address != "":
+    if do_scan:
+        asyncio.run(scan())
+    elif address != "":
         asyncio.run(main(address))
     else:
-        print("Pass the MAC Address using flag '-d'")
+        print("Pass the MAC Address using flag '-d' or start a scan using -s")
