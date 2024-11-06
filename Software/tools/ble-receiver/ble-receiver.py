@@ -17,7 +17,7 @@ async def scan():
     scanner = BleakScanner()
     devices = await scanner.discover()
     for device in devices:
-        print(device.address + " name: " + device.name)
+        print(device.address + " (" + device.name + ")")
     
 
 async def callback(sender, data: bytearray):
