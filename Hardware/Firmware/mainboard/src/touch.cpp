@@ -6,8 +6,7 @@
 bool cur_touched_state = false;
 uint16_t touch_val;
 
-
-void detect_touch(uint8_t pin){
+void detect_touch(uint8_t pin) {
   touch_val = touchRead(pin);
 
   if (touch_val > THRESH_NO_TOUCH and cur_touched_state == true) {
