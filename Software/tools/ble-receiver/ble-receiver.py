@@ -51,24 +51,25 @@ async def main(address):
        await client.disconnect()
        
 
-address = ""
-micros_format = False
-output_to_file = False
-file_path = ""
+if __name__ == '__main__':
+    address = ""
+    micros_format = False
+    output_to_file = False
+    file_path = ""
 
-for j, i in enumerate(sys.argv[1:]):
-    if i == "-d":
-        address = sys.argv[j+2]
-    elif i == "-m" or i == "--micros":
-        micros_format = True
-    elif i == "-f" or i == "--file":
-        output_to_file = True
-        file_path = sys.argv[j+2]
-        sys.stdout = open(file_path, 'wt')
+    for j, i in enumerate(sys.argv[1:]):
+        if i == "-d":
+            address = sys.argv[j+2]
+        elif i == "-m" or i == "--micros":
+            micros_format = True
+        elif i == "-f" or i == "--file":
+            output_to_file = True
+            file_path = sys.argv[j+2]
+            sys.stdout = open(file_path, 'wt')
 
-atexit.register(exit_handler)
-        
-if address != "":
-    asyncio.run(main(address))
-else:
-    print("Pass the MAC Address using flag '-d'")
+    atexit.register(exit_handler)
+
+    if address != "":
+        asyncio.run(main(address))
+    else:
+        print("Pass the MAC Address using flag '-d'")
