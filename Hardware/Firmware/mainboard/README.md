@@ -28,7 +28,9 @@ When BLE is enabled the ESP32 acts as an BLE Server providing
 - Service with uuid: `f5aea478-9ec3-4bcf-af20-7f75e7c68c9d`
 - Characteristic with uuid: `68bf07fb-d00b-4c80-a796-f8be82b5dea`
 
-The name the device will show up under is currently set to `LapCal` (in `ble-utils.cpp`).
+The name the device will show up under depends on the hand:
+- left: `lapcal left`
+- right: `lapcal right`
 
 The data is in a binary format:
 - timestamp: `uint64_t`

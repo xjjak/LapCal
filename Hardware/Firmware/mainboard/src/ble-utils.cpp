@@ -69,7 +69,11 @@ class BleEventCallbacks : public BLEServerCallbacks {
 BLECharacteristic *setup_ble() {
   ble_is_connected = 0;
   Serial.println("Setting up BLE...");
-  BLEDevice::init("LapCal");
+#if RIGHT_HAND
+  BLEDevice::init("lapcal right");
+#else
+  BLEDevice::init("lapcal left");
+#endif
   pBleServer = BLEDevice::createServer();
   pBleService = pBleServer->createService(service_uuid);
   pBleCharacteristic = pBleService->createCharacteristic(
