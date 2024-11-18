@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#include "ble-utils.h"
 #include "config.h"
+#include "ble-utils.h"
 
 #define service_uuid "f5aea478-9ec3-4bcf-af20-7f75e7c68c9d"
 #define characteristic_uuid "68bf07fb-d00b-4c80-a796-f8be82b5dea7"
@@ -39,7 +39,7 @@ void pack_reading(reading *readings, byte *all_data_array, uint64_t timestamp) {
   }
 }
 
-void ble_advertise() {
+void ble_advertise(BLEServer *pBleServer) {
   Serial.print("Starting advertisement...");
   pBleAdvertising = pBleServer->getAdvertising();
   pBleAdvertising->start();
@@ -57,6 +57,7 @@ class BleEventCallbacks : public BLEServerCallbacks {
     ble_is_connected = 0;
     Serial.println("Connection lost");
     digitalWrite(LED_BLUE, LOW);
+    ble_advertise(server);
   }
 };
 
@@ -79,7 +80,7 @@ BLECharacteristic *setup_ble() {
   pBleCharacteristic->setValue({0x42});
   pBleService->start();
 
-  ble_advertise();
+  ble_advertise(pBleServer);
   return pBleCharacteristic;
 }
 
