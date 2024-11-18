@@ -18,7 +18,14 @@ async def scan():
     devices = await scanner.discover()
     for device in devices:
         print(device.address + " (" + device.name + ")")
-    
+
+async def find_address_by_name(n):
+    scanner = BleakScanner()
+    device = await scanner.find_device_by_name(n)
+    if device:
+        return device.address
+    else:
+        return None
 
 async def callback(sender, data: bytearray):
     #print(f"{data.hex()}")
@@ -63,11 +70,14 @@ if __name__ == '__main__':
     output_to_file = False
     file_path = ""
     do_scan = False
+    name = ""
 
     for j, i in enumerate(sys.argv[1:]):
         if i == "-s" or i == "--scan":
             do_scan = True
             break
+        elif i == "-n" or i == "--name":
+            name = sys.argv[j+2]
         elif i == "-d":
             address = sys.argv[j+2]
         elif i == "-m" or i == "--micros":
@@ -82,5 +92,11 @@ if __name__ == '__main__':
         asyncio.run(scan())
     elif address != "":
         asyncio.run(main(address))
+    elif name != "":
+        address = asyncio.run(find_address_by_name(name))
+        if address:
+            asyncio.run(main(address))
+        else:
+            print("Could not find a device matching the given name")
     else:
         print("Pass the MAC Address using flag '-d' or start a scan using -s")

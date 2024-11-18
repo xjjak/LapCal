@@ -9,3 +9,4 @@ This script can be used as a drop-in replacement for ble-serial for receiving da
   - `-m, --micros`: Add 3 zeros to the end of the timestamp for microsecond format. This is inaccurate though.
   - `-f, --file` All output is redirected to file at give path. (Useful for compatibility with live-plotting by passing `/tmp/ttyBLE`)
   - `-s, --scan` Does a scan and prints out available devices (`<mac-address> (<name>)`). *Ignores all other flags* when passed.
+  - `-n, --name` Find device address by name and connect to it.
