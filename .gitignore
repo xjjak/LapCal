@@ -1,3 +1,5 @@
 invoices
 *-backups
 *.lck
+.ccls
+.projectile
