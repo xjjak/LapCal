@@ -21,11 +21,16 @@
     ["D7", "C6", "D4", "D0", "D1"],
     ["9/A9", "8/A8", null, null, null]
     */
+#include <SoftwareSerial.h>
+
+#define RX_s 11
+#define TX_s A4
 
 #define SW_3 A1
 #define SW_8 16
 #define SW_13 4
 
+// SoftwareSerial mcuSerial (RX_s, TX_s);
 
 void setup() {
 
@@ -33,15 +38,18 @@ void setup() {
     MCUCR = (1 << JTD); // to actually set the bits the operation has to be repeated in 4 clock cycles
     MCUCR = (1 << JTD);
 
-    Serial.begin(115200);
+    Serial1.begin(9600);
+    // mcuSerial.begin(9600);
     delay(10);
+    // pinMode(RX_s, INPUT);
+    // pinMode(TX_s, OUTPUT);
     pinMode(SW_3, INPUT_PULLUP);
     pinMode(SW_8, INPUT_PULLUP);
     pinMode(SW_13, INPUT_PULLUP);
 }
 
-uint8_t read_column(uint8_t const &top, uint8_t const &middle, uint8_t const bottom){
-    uint8_t out = 0;
+byte read_column(uint8_t const &top, uint8_t const &middle, uint8_t const &bottom){
+    byte out = 0;
     out = out | (!digitalRead(top) << 2);
     out = out | (!digitalRead(middle) << 1);
     out = out | (!digitalRead(bottom) << 0);
@@ -50,6 +58,12 @@ uint8_t read_column(uint8_t const &top, uint8_t const &middle, uint8_t const bot
 
 
 void loop() {
-    Serial.println(read_column(SW_3, SW_8, SW_13));
-    delay(10);
+    // mcuSerial.write(read_column(SW_3, SW_8, SW_13));
+    // int num_bytes = mcuSerial.write(65);
+    // mcuSerial.flush();
+    // mcuSerial.println("test");
+    Serial1.write('A');
+
+    // Serial.write(read_column(SW_3, SW_8, SW_13));
+    delay(100);
 }
