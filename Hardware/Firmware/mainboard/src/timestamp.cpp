@@ -16,14 +16,14 @@
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
 
-const char* ssid = STRINGIFY(WIFI_SSID);
-const char* password = STRINGIFY(WIFI_PASS);
+const char *ssid = STRINGIFY(WIFI_SSID);
+const char *password = STRINGIFY(WIFI_PASS);
 
 // NTP Server to request epoch time
-const char* ntpServer = "de.pool.ntp.org";
+const char *ntpServer = "de.pool.ntp.org";
 
 // Variable to save current epoch time
-unsigned long epochTime; 
+unsigned long epochTime;
 
 char timestamp_at_boot[60];
 
@@ -42,14 +42,26 @@ void initWiFi() {
   Serial.println(WiFi.localIP());
 }
 
-void gen_timestamp(char* start_timestamp){
-    char buffer[3];
-    initWiFi();
-    waitForSync();
-    WiFi.disconnect();
-    WiFi.mode(WIFI_OFF);
-    sprintf(start_timestamp, "%d", now());
-    sprintf(buffer,"%d",ms());
-    strcat(start_timestamp, buffer);
-    sprintf(start_timestamp, "%lld", (atoll(start_timestamp)-millis()));
+uint64_t get_milli_timestamp() {
+  initWiFi();
+  waitForSync();
+  uint64_t timestamp = ((uint64_t)now() * 1000) + ms() - millis();
+  delay(10);
+  WiFi.disconnect();
+  WiFi.mode(WIFI_OFF);
+  return timestamp;
+}
+
+void gen_timestamp(char *start_timestamp, uint64_t *timestamp_num) {
+  char buffer[3];
+  initWiFi();
+  waitForSync();
+  sprintf(start_timestamp, "%d", now());
+  sprintf(buffer, "%d", ms() * 1000);
+  strcat(start_timestamp, buffer);
+  sprintf(start_timestamp, "%lld", (atoll(start_timestamp) - micros()));
+  *timestamp_num = atoll(start_timestamp);
+
+  WiFi.disconnect();
+  WiFi.mode(WIFI_OFF);
 }
