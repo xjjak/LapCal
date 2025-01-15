@@ -88,6 +88,7 @@
             (λ (b c)
               (define max-value (string->number (send b get-value)))
               (when max-value
+                (set! int-max max-value)
                 (update-plotter-values #:max max-value)
                 ;; (send plotter set-max-value max-value)
                 ))]))
@@ -102,6 +103,7 @@
             (λ (b c)
               (define min-value (string->number (send b get-value)))
               (when min-value
+                (set! int-min min-value)
                 (update-plotter-values #:min min-value)
                 ;; (send plotter set-min-value min-value)
                 ))]))
@@ -115,6 +117,7 @@
             (λ (b c)
               (define new-size (string->number (send b get-value)))
               (when new-size
+                (set! int-size new-size)
                 (update-plotter-values #:size new-size)
                 ;; (send plotter set-size new-size)
                 ))]))
