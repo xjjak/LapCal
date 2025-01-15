@@ -22,7 +22,7 @@ byte read_column(uint8_t const &top, uint8_t const &middle, uint8_t const &botto
 }
 
 void setup(){
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.swap();
     pinMode(LED, OUTPUT);
     digitalWrite(LED, LOW);
