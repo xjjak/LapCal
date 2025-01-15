@@ -13,8 +13,6 @@
 #define RX_s 25
 #define TX_s 26
 
-// #define MPU6050_DMP_FIFO_RATE_DIVISOR 0x07
-
 uint32_t prev_millis;
 
 uint16_t FIFOpacketSize = 42;
@@ -59,7 +57,7 @@ MPU6050* mpu_ptr;
 
 byte sweepState;
 
-char packet[13];
+char packet[16];
 
 void setup_sensor(MPU6050 *mpu){
     mpu->initialize();
@@ -163,13 +161,16 @@ void setup(){
 
     sweepSerial.begin(9600, SERIAL_8N1, RX_s, TX_s);
     setup_sensor(mpu_ptr);
+    packet[13] = '\n';
+    packet[14] = 4;
+    packet[15] = 4;
 }
 
 void loop(){
     // prev_millis = millis();
     get_all_data(packet, &sweepState, mpu_ptr);
-    Serial.write(packet, 13);
-    Serial.write('\n');
+    Serial.write(packet, 16);
+    Serial.flush();
     // Serial.print("Millis taken: "); Serial.println(millis() - prev_millis);
 
 }
