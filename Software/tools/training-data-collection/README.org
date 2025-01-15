@@ -4,13 +4,17 @@
 - ~2025-01-15_controlled-taps.csv~:
   /4.6MB, 151471 lines/
   /recorded by xjjak, right hand middle finger using Sensor #I, sweep-esp setup, middle finger column/
-  /calibrated offsets: ~{-6018, 1394, 1385, 66, -86, 35}~
+  calibrated offsets: ~{-6018, 1394, 1385, 66, -86, 35}~
   /~10mins/
+  
   Description: short taps, varying speed, starting position, different orders of keys pressed
+  (controller was reset beforehand, with short waiting period before start of collection)
     
 - ~2025-01-15_controlled-holds.csv~:
   /2.8MB, 92180 lines/
   /recorded by xjjak, right hand middle finger using Sensor #I, sweep-esp setup, middle finger column/
-  /calibrated offsets: ~{-6018, 1394, 1385, 66, -86, 35}~
+  calibrated offsets: ~{-6018, 1394, 1385, 66, -86, 35}~
   /~6mins/
+  
   Description: short-long holds, coming to rest in pressed down position, varied speed, starting position, order
+  (controller was reset beforehand, with short waiting period before start of collection)
