@@ -2,6 +2,11 @@
 * LapCal
 /by Emil² - Ξ/
 
+We are trying to build data gloves, that enable typing on a 34-key keyboard, without an actual keyboard, based on 6-axis IMU sensors, using machine learning.
+
+
+
+*Licensing:*
 
 This work is licensed under a
 [[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][http://creativecommons.org/licenses/by-nc-sa/4.0/]].
