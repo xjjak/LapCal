@@ -18,3 +18,12 @@
   
   Description: short-long holds, coming to rest in pressed down position, varied speed, starting position, order
   (controller was reset beforehand, with short waiting period before start of collection)
+
+- ~2025-01-20_monkeytype.csv~:
+  /8.7MB, 289297 lines/
+  /recorded by xjjak, right hand middle finger using Sensor #I, sweep-esp setup, middle finger column/
+  calibrated offsets: ~{-6018, 1394, 1385, 66, -86, 35}~ , keys: ~i k ,~ and hold to shift on ~k~
+
+  Description: Monkeytype, with punctuation, so also Captial letters, english 10k, collection started shortly after controller power-on.
+  (Occasional adjustment of keyboard position/twist, shfited around a bit during typing)
+  
