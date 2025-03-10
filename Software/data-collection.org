@@ -211,7 +211,7 @@ Next, we identify the erroneous ones. As outlined in the [[*A Brief Description 
 
 Using the function we can filter for invalid taps.
 
-#+begin_src jupyter-python
+#+begin_src jupyter-python :exports both
   taps_err = list(filter(lambda tap: not is_tap_valid(tap, data_ct), taps))
   
   # Print overview of all erroneous taps
@@ -297,7 +297,7 @@ Before we continue to aggregate the data into feature vectors, we want to take a
 First, we look at the the distribution of keyboard states.
 
 #+header: :file diagrams/2025-01-15_controlled-taps_histogram-keyboard-states.png
-#+begin_src jupyter-python
+#+begin_src jupyter-python :results output :exports both
   unique, counts = np.unique(data_ct[:,0], return_counts=True)
   plt.bar(unique, counts, label=header_ct[0])
   plt.legend(prop={'size': 10})
@@ -305,44 +305,35 @@ First, we look at the the distribution of keyboard states.
 #+end_src
 
 #+RESULTS:
-:RESULTS:
-: Text(0.5, 1.0, 'histogram of keyboard states')
 [[file:diagrams/2025-01-15_controlled-taps_histogram-keyboard-states.png]]
-:END:
 
 As expected, the majority of states are resting states and fortunately the other states seem equally frequent.
 
 Next, we look at the acceleration data.
 
 #+header: :file diagrams/2025-01-15_controlled-taps_histogram-acceleration.png
-#+begin_src jupyter-python
+#+begin_src jupyter-python :results output :exports both
   plt.hist(data_ct[:,1:4], bins=100, density=True, stacked=True, label=header_ct[1:4])
   plt.legend(prop={'size': 10})
   plt.title('histogram of acceleration data')
 #+end_src
 
 #+RESULTS:
-:RESULTS:
-: Text(0.5, 1.0, 'histogram of acceleration data')
 [[file:diagrams/2025-01-15_controlled-taps_histogram-acceleration.png]]
-:END:
 
 The first thing we notice is that the calibration does not seem to work that well but this is something we have come to expect since the absolute values seem to drift unpredictably over time. Apart from that, we also notice that =ax= and =az= seem to be distributed normally with little variation, unlike =ay= which is distributed much more broadly and seemingly also not in a normal distribution. This could indicate, that =ay= could play an important role detecting taps. We also, notably, don't see any significant amount noise which is good.
 
 Lastly, we look at the rotation data.
 
 #+header: :file diagrams/2025-01-15_controlled-taps_histogram-rotation.png
-#+begin_src jupyter-python
+#+begin_src jupyter-python :results output :exports both
   plt.hist(data_ct[:,4:], bins=100, density=True, stacked=True, label=header_ct[4:])
   plt.legend(prop={'size': 10})
   plt.title('histogram of rotation data')
 #+end_src
 
 #+RESULTS:
-:RESULTS:
-: Text(0.5, 1.0, 'histogram of rotation data')
 [[file:diagrams/2025-01-15_controlled-taps_histogram-rotation.png]]
-:END:
 
 For the rotation data we also fortunately do not observe any significant amount of noise. All rotation axes seem to be normally distributed which we expect since any variation from typing on different keys should be observed equally frequent on both ends. Also, =gx= and =gz= are distributed slightly more broadly than =gy= which might indicate that these are the axes that the finger rotates around while typing.
 
