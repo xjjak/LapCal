@@ -33,10 +33,14 @@ Notably, the dataset types mostly vary by how we collect the [[*Labels][labels]]
       - [[#raw-data][Raw Data]]
       - [[#dataset][Dataset]]
     - [[#keypresses-directly-from-the-keyboard][Keypresses Directly from the Keyboard]]
-    - [[#assemble-dataset][Assemble Dataset]]
-      - [[#rectify-errors][Rectify Errors]]
-        - [[#find-errors][Find Errors]]
-        - [[#fix-errors][Fix Errors]]
+    - [[#rectify-errors][Rectify Errors]]
+      - [[#find-errors][Find Errors]]
+      - [[#fix-errors][Fix Errors]]
+    - [[#a-look-at-the-data][A Look at the Data]]
+    - [[#aggregate-features-and-labels][Aggregate Features and Labels]]
+      - [[#features][Features]]
+      - [[#labels][Labels]]
+    - [[#write-dataset][Write Dataset]]
 :END:
 
 * A Brief Description of Our Data
@@ -77,11 +81,14 @@ For some experiments, it could also be interesting to further simplify certain m
 
 * TODO The Data Collection Process
 
+# TODO: python version + package management
+
 ** TODO CSV
 *** Loading Data
 #+header: :noweb-ref csv-helpers
 #+begin_src jupyter-python :results silent
   import csv
+  import numpy as np
 
   def load_csv(path, header=True, delimiter=',', parse_fn=lambda x:x):
       with open(path, newline='') as f:
@@ -92,9 +99,9 @@ For some experiments, it could also be interesting to further simplify certain m
           data = [[parse_fn(value) for value in row]
                   for row in reader]
       if header:
-          return (headerline, data)
+          return (headerline, np.array(data))
       else:
-          return data
+          return np.array(data)
 #+end_src
 
 *** Write Data
@@ -139,8 +146,7 @@ Dataset files:
 # TODO: check for correctness (@xjjak)
 To collect keypress data directly from the keyboard, we inject some firmware code into the keyboards firmware, that sends key events to an external controller (the project hardware?) via unused pins on the keyboards microcontroller.
 
-*** TODO Assemble Dataset
-**** Rectify Errors
+*** Rectify Errors
 Before we can recitify errors, we first need to be aware of what errors are. In this case, there are two kind of errors to consider -- we will only handle the latter:
 1. *Sensor failure*: Sometimes the firmware fails to read data from the sensor or the data it reads doesn't really make any sense. But these kinds of errors are hard to sensibly rectify. Instead, it is often more reasonable to omit data around the errors or to let the machine learning algorithm handle the errors. For now, we will not handle them.
    # TODO: do we check for them? (ig prob should via histogram)
@@ -148,7 +154,7 @@ Before we can recitify errors, we first need to be aware of what errors are. In 
 
 The next step would be to find those errors in the raw data and handle them -- if appropriate.
 
-***** Find Errors
+**** Find Errors
 First, we need to load the data.
 
 #+begin_src jupyter-python :noweb no-export
@@ -229,7 +235,7 @@ Using the function we can filter for invalid taps.
 :   from 126434 to 126452 with states: 2, 6
 :   from 134940 to 134956 with states: 2, 6
 
-***** Fix Errors
+**** Fix Errors
 To fix these issues, we have to come up with a strategy for reassigning these multiple, possibly invalid states into one state per tap. The strategy we employ works the following way:
 - When there is *at least one valid state*, we assign the first valid state to the tap.
 - When there is *only one invalid state*, we assign the state to the tap that corresponds to the non-homerow key that is part of the invalid state.
@@ -280,3 +286,67 @@ Lastly, we write the data to an intermediary file.
   )
 #+end_src
 
+*** A Look at the Data
+Before we continue to aggregate the data into feature vectors, we want to take a quick look at the data using [[https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html][histograms with matplotlib]].
+
+#+begin_src jupyter-python
+  import matplotlib.pyplot as plt
+  %matplotlib inline
+#+end_src
+
+First, we look at the the distribution of keyboard states.
+
+#+header: :file diagrams/2025-01-15_controlled-taps_histogram-keyboard-states.png
+#+begin_src jupyter-python
+  unique, counts = np.unique(data_ct[:,0], return_counts=True)
+  plt.bar(unique, counts, label=header_ct[0])
+  plt.legend(prop={'size': 10})
+  plt.title('histogram of keyboard states')
+#+end_src
+
+#+RESULTS:
+:RESULTS:
+: Text(0.5, 1.0, 'histogram of keyboard states')
+[[file:diagrams/2025-01-15_controlled-taps_histogram-keyboard-states.png]]
+:END:
+
+As expected, the majority of states are resting states and fortunately the other states seem equally frequent.
+
+Next, we look at the acceleration data.
+
+#+header: :file diagrams/2025-01-15_controlled-taps_histogram-acceleration.png
+#+begin_src jupyter-python
+  plt.hist(data_ct[:,1:4], bins=100, density=True, stacked=True, label=header_ct[1:4])
+  plt.legend(prop={'size': 10})
+  plt.title('histogram of acceleration data')
+#+end_src
+
+#+RESULTS:
+:RESULTS:
+: Text(0.5, 1.0, 'histogram of acceleration data')
+[[file:diagrams/2025-01-15_controlled-taps_histogram-acceleration.png]]
+:END:
+
+The first thing we notice is that the calibration does not seem to work that well but this is something we have come to expect since the absolute values seem to drift unpredictably over time. Apart from that, we also notice that =ax= and =az= seem to be distributed normally with little variation, unlike =ay= which is distributed much more broadly and seemingly also not in a normal distribution. This could indicate, that =ay= could play an important role detecting taps. We also, notably, don't see any significant amount noise which is good.
+
+Lastly, we look at the rotation data.
+
+#+header: :file diagrams/2025-01-15_controlled-taps_histogram-rotation.png
+#+begin_src jupyter-python
+  plt.hist(data_ct[:,4:], bins=100, density=True, stacked=True, label=header_ct[4:])
+  plt.legend(prop={'size': 10})
+  plt.title('histogram of rotation data')
+#+end_src
+
+#+RESULTS:
+:RESULTS:
+: Text(0.5, 1.0, 'histogram of rotation data')
+[[file:diagrams/2025-01-15_controlled-taps_histogram-rotation.png]]
+:END:
+
+For the rotation data we also fortunately do not observe any significant amount of noise. All rotation axes seem to be normally distributed which we expect since any variation from typing on different keys should be observed equally frequent on both ends. Also, =gx= and =gz= are distributed slightly more broadly than =gy= which might indicate that these are the axes that the finger rotates around while typing.
+
+*** TODO Aggregate Features and Labels
+**** TODO Features
+**** TODO Labels
+*** TODO Write Dataset
