@@ -339,5 +339,71 @@ For the rotation data we also fortunately do not observe any significant amount 
 
 *** TODO Aggregate Features and Labels
 **** TODO Features
+Every feature needs to encompass information about the state of the sensor as well as its immediate history. This is necessary to enable the model to detect changes in the sensor readings since two resting positions cannot be reliably differentiated even if one is in the air and the other on the table.
+
+To add history information to our features, we consider two kinds of additional features:
+- the *change* of every sensor value compared to its predecessor; if more history is necessary one could also add the *change of the change* and so on. (a form of discrete numerical differentiation)
+- the *history* itself, i.e., we just add the previous sensor reading to our feature vector. For more history we can just add more readings.
+  
+Both approaches have their own set of benefits and drawbacks. We list some here:
+- Simpler models might work better on change than on history values.
+- Normalization techniques might affect the information in change values since they are dependent on other values in the feature vector. This might not necessarily a problem though, since it might be enough to just compare them in relation to other change values.
+  
+The conclusion here seems to be, that change values are more suitable for simpler models, especially if they work well without normalization, and that history values are the better choice for more complex models, like neural networks, and strongly benefit from normalization and through their complexity can consider change values implicitly on their own. Thus, we will prepare both datasets for further experimentation.
+
+***** Change-based Features
+# TODO: degree as org variable?
+
+Before we can create change-based features, we first need to decide the /degree/, i.e., how many levels of change we include.
+
+#+begin_src jupyter-python :results silent
+  N_DEGREE = 5
+  N_SENSOR_DIMS = 6
+#+end_src
+
+Then, we can create our feature vectors. We assume that higher levels of change can be initialized with zeros for the first few features vectors which corresponds to the absence of sensor movement which should be compatible with the data collection methodology.
+# Should the first N_DEGREE be included? Assuming no change seems somewhat reasonable
+
+#+begin_src jupyter-python :results silent
+  features_ct_change = np.zeros((len(data_ct), N_DEGREE * N_SENSOR_DIMS))
+  for d in range(N_DEGREE):
+      features_ct_change[d, 0:N_SENSOR_DIMS] = data_ct[d,1:]
+
+  for i in range(len(data_ct)):
+      for d in range(min(N_DEGREE, i+1)):
+          if d == 0:
+              features_ct_change[i, 0:N_SENSOR_DIMS] = data_ct[i,1:]
+          else:
+              previous = features_ct_change[i-1, (d-1)*N_SENSOR_DIMS:d*N_SENSOR_DIMS]
+              current  = features_ct_change[i, (d-1)*N_SENSOR_DIMS:d*N_SENSOR_DIMS]
+              features_ct_change[i, d*N_SENSOR_DIMS:(d+1)*N_SENSOR_DIMS] = current - previous
+#+end_src
+
+***** History-based Features
+# TODO: degree as org variable?
+
+Similarly to the change-based features, the history-based features also need a degree -- in this case the number of previous readings to include.
+
+#+begin_src jupyter-python :results silent
+  N_DEGREE = 5
+  N_SENSOR_DIMS = 6
+#+end_src
+
+With that, we can create the feature vectors. This time we discard the first =N_DEGREE= of potential feature vectors. Alternatively, we could also duplicate the first reading =N_DEGREE= times to achieve a similar effect to what we did for [[*Change-based Features][change-based feature vectors]].
+
+#+begin_src jupyter-python :results silent
+  features_ct_history = np.zeros((len(data_ct)-N_DEGREE, N_DEGREE * N_SENSOR_DIMS))
+  for d in range(N_DEGREE):
+      features_ct_history[0, d*N_SENSOR_DIMS:(d+1)*N_SENSOR_DIMS] = data_ct[N_DEGREE-d-1,1:]
+
+  for i in range(1, len(data_ct)-N_DEGREE):
+      for d in range(N_DEGREE):
+          if d == 0:
+              features_ct_history[i, 0:N_SENSOR_DIMS] = data_ct[N_DEGREE+i,1:]
+          else:
+              previous = features_ct_history[i-1, (d-1)*N_SENSOR_DIMS:d*N_SENSOR_DIMS]
+              features_ct_history[i, d*N_SENSOR_DIMS:(d+1)*N_SENSOR_DIMS] = previous
+#+end_src
+
 **** TODO Labels
 *** TODO Write Dataset
