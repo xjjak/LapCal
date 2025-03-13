@@ -32,5 +32,6 @@ This is supposed to be exchanged without further formatting in raw binary.
 #+end_example
 
 * Structure & "Data pipeline"
+[[../Documentation/diagrams/data-pipeline.svg]]
 * Usage
 /Describe how to run the code in org files/
