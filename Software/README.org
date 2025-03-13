@@ -8,7 +8,29 @@ This folder contains all the custom software needed for this project. This possi
 - analysis and visualizations
 
 
-* Structure & "Data pipeline"
+* Formats
+** Keyboard state
+[[../Documentation/diagrams/keyboard-state-format-grouping.svg]]
 
+The Format to exchange a keyboard state - which keys are pressed and which aren't, is a byte sequence according to the grouping in the above image. So each group is represented by a byte, in which the *LSB* represents the key on which the arrow starts. So each hand is represented by 5 bytes and these packets are chained together: ~left|right~.
+
+This is supposed to be exchanged without further formatting in raw binary.
+
+- Binary format
+- One byte for one finger key group
+- LSB represents top most key (home colum for index finger)
+- /not pressed/: ~0~
+- /pressed/: ~1~
+
+/Convention:/ If a keyboard state contains only 5 bytes, the right hand is ignored (no key is considered pressed).
+
+ The following is a seperated representation:
+#+begin_example
+ 00000000 00000000 00000000 00000000 00000000   00000000 00000000 00000000 00000000 00000000
+    1        2         3       4        5          1        2         3       4        5
+                    left                      |                                              |
+#+end_example
+
+* Structure & "Data pipeline"
 * Usage
 /Describe how to run the code in org files/
