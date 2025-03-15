@@ -1,0 +1,16 @@
+* Keyboard visualisation
+/written in rust, to try the language/
+
+The program takes binary input via ~stdin~ in the format as specified in [[../Software/README.org]] and visualizes the virtual keyboard's state.
+
+* Usage
+To use the program run ~cargo build -r~ in the directory, afterwards the program's binary is found in
+#+BEGIN_SHELL
+./target/release/keyboard-visualization
+#+END_SHELL
+
+** Demo
+As a demonstration, a small bash script ~simulate-input~ is included:
+#+BEGIN_SHELL
+./simulate-input | ./target/release/keyboard-visualization
+#+END_SHELL
