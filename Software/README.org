@@ -8,6 +8,11 @@ This folder contains all the custom software needed for this project. This possi
 - analysis and visualizations
 
 
+* Structure & "Data pipeline"
+[[../Documentation/diagrams/data-pipeline.svg]]
+* Usage
+/Describe how to run the code in org files/
+
 * Formats
 ** Keyboard state
 [[../Documentation/diagrams/keyboard-state-format-grouping.svg]]
@@ -28,10 +33,6 @@ This is supposed to be exchanged without further formatting in raw binary.
 #+begin_example
  00000000 00000000 00000000 00000000 00000000   00000000 00000000 00000000 00000000 00000000
     1        2         3       4        5          1        2         3       4        5
-                    left                      |                                              |
+                    left                      |                     right                   
 #+end_example
 
-* Structure & "Data pipeline"
-[[../Documentation/diagrams/data-pipeline.svg]]
-* Usage
-/Describe how to run the code in org files/
