@@ -370,7 +370,7 @@ As we saw in [[*A Look at the Data][A Look at the Data]], the sensor calibration
 We want the exponential moving average to approximate the real average of the data. The closer we get to that, the more similar the distribution should look to the uncentered distribution. Essentially, the moving average should only act as a global shift as much as possible.
 
 #+name: compare_ema
-#+begin_src jupyter-python :results output :exports none :var alpha=0.95 index=2
+#+begin_src jupyter-python :results output :exports code :var alpha=0.95 index=2
   data_tmp = center_moving_average(data_ct, alpha=alpha)
   data_mean = np.mean(data_ct, axis=0)
   plt.hist([data_tmp[:,index], (data_ct - data_mean)[:,index]], bins=50, label=[header_ct[index] + " (EMA)", header_ct[index] + " (centered)"], histtype='step', linewidth=2)
@@ -384,31 +384,37 @@ Quick comparison of different averaging weights with =index=2=:
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-5.png]]
+  
 - =alpha=0.8=
   #+call: compare_ema[:file diagrams/ema_centering/compare_0-8.png](alpha=0.8)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-8.png]]
+  
 - =alpha=0.9=
   #+call: compare_ema[:file diagrams/ema_centering/compare_0-9.png](alpha=0.9)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-9.png]]
+  
 - =alpha=0.95=
   #+call: compare_ema[:file diagrams/ema_centering/compare_0-95.png](alpha=0.95)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-95.png]]
+  
 - =alpha=0.99=
   #+call: compare_ema[:file diagrams/ema_centering/compare_0-99.png](alpha=0.99)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-99.png]]
+  
 - =alpha=0.995=
   #+call: compare_ema[:file diagrams/ema_centering/compare_0-995.png](alpha=0.995)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-995.png]]
+  
 - =alpha=1=
   #+call: compare_ema[:file diagrams/ema_centering/compare_1.png](alpha=1)
 
@@ -441,40 +447,42 @@ Taking a closer look at all the sensor readings we get the following comparison.
   axs[2].legend(prop={'size': 10})
 #+end_src
 
-#+RESULTS: compare-center
-[[file:./.ob-jupyter/308721a4e31b24032fddee1ed1290e375e3ee44a.png]]
-
 For the following comparison we set =alpha=0.995=, =start=10000=, and =end=13000=
-1. =index=1=:
-   #+call: compare-center[:file diagrams/ema_centering/compare-center_1.png](index=1)
+- =index=1=:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_1.png](index=1)
 
-   #+RESULTS:
-   [[file:diagrams/ema_centering/compare-center_1.png]]
-2. =index=2=:
-   #+call: compare-center[:file diagrams/ema_centering/compare-center_2.png](index=2)
+  #+RESULTS:
+  [[file:diagrams/ema_centering/compare-center_1.png]]
+  
+- =index=2=:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_2.png](index=2)
 
-   #+RESULTS:
-   [[file:diagrams/ema_centering/compare-center_2.png]]
-3. =index=3=:
-   #+call: compare-center[:file diagrams/ema_centering/compare-center_3.png](index=3)
+  #+RESULTS:
+  [[file:diagrams/ema_centering/compare-center_2.png]]
+   
+- =index=3=:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_3.png](index=3)
 
-   #+RESULTS:
-   [[file:diagrams/ema_centering/compare-center_3.png]]
-4. =index=4=:
+  #+RESULTS:
+  [[file:diagrams/ema_centering/compare-center_3.png]]
+   
+- =index=4=:
    #+call: compare-center[:file diagrams/ema_centering/compare-center_4.png](index=4)
 
-   #+RESULTS:
-   [[file:diagrams/ema_centering/compare-center_4.png]]
-5. =index=5=:
-   #+call: compare-center[:file diagrams/ema_centering/compare-center_5.png](index=5)
+  #+RESULTS:
+  [[file:diagrams/ema_centering/compare-center_4.png]]
+   
+- =index=5=:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_5.png](index=5)
 
-   #+RESULTS:
-   [[file:diagrams/ema_centering/compare-center_5.png]]
-6. =index=6=:
-   #+call: compare-center[:file diagrams/ema_centering/compare-center_6.png](index=6)
+  #+RESULTS:
+  [[file:diagrams/ema_centering/compare-center_5.png]]
+   
+- =index=6=:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_6.png](index=6)
 
-   #+RESULTS:
-   [[file:diagrams/ema_centering/compare-center_6.png]]
+  #+RESULTS:
+  [[file:diagrams/ema_centering/compare-center_6.png]]
 
 We notice that the average is pretty reliable for the acceleration data, but for the rotation data we see more fluctuations in the average and it is not clear how that might affect learning.
 
