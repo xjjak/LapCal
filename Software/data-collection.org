@@ -39,6 +39,8 @@ Notably, the dataset types mostly vary by how we collect the [[*Labels][labels]]
     - [[#a-look-at-the-data][A Look at the Data]]
     - [[#aggregate-features-and-labels][Aggregate Features and Labels]]
       - [[#features][Features]]
+        - [[#change-based-features][Change-based Features]]
+        - [[#history-based-features][History-based Features]]
       - [[#labels][Labels]]
     - [[#write-dataset][Write Dataset]]
 :END:
@@ -99,9 +101,9 @@ For some experiments, it could also be interesting to further simplify certain m
           data = [[parse_fn(value) for value in row]
                   for row in reader]
       if header:
-          return (headerline, np.array(data))
+          return (headerline, np.array(data, dtype=np.float64))
       else:
-          return np.array(data)
+          return np.array(data, dtype=np.float64)
 #+end_src
 
 *** Write Data
@@ -167,7 +169,7 @@ First, we need to load the data.
 #+RESULTS:
 : Header line: ['kb_state', 'ax', 'ay', 'az', 'gx', 'gy', 'gz']
 
-The raw data consists of a list of readings. These however do not include enough context, to detect all erroneous readings and fix the errors. Instead of the readings themselves, we instead consider /taps/. As a tap, we understand a maximally long sequence of consecutive readings with nonzero keyboard state.
+The raw data consists of a list of readings. These however do not include enough context, to detect all erroneous readings and fix the errors. Instead of the readings themselves, we consider /taps/. As a tap, we understand a maximally long sequence of consecutive readings with nonzero keyboard states.
 
 #+begin_src jupyter-python :results silent
   # Get starting (inclusive) and ending (exclusive) index of reading
@@ -204,6 +206,7 @@ To check the taps for errors, we first need to extract all taps from the given d
 Next, we identify the erroneous ones. As outlined in the [[*A Brief Description of Our Data][data description]], the only valid /keyboard states/ (first column in the raw data file) are 0, 1, 2, and 4 -- i.e., 000, 001, 010, and 100 in binary. Invalid keyboard states would consequently be 3 (011), 5 (101), 6 (110), and 7 (111). Thus, all taps that contain any invalid keyboard states are erroneous. A tap is also faulty when it contains multiple valid keyboard states, since one tap should also only hit one key. We write the following function to validate taps.
 
 #+begin_src jupyter-python :results silent
+  valid_keyboard_states = [0, 1, 2, 4]
   def is_tap_valid(tap, data):
       return len(set(map(lambda i: data[i][0], range(*tap)))) == 1 \
           and data[tap[0]][0] in valid_keyboard_states
@@ -227,13 +230,13 @@ Using the function we can filter for invalid taps.
 
 #+RESULTS:
 : Erroneous taps:
-:   from  23627 to  23640 with states: 2, 4, 6
-:   from  50182 to  50206 with states: 2, 6
-:   from  53462 to  53483 with states: 2, 6
-:   from  62913 to  62926 with states: 2, 3
-:   from 106848 to 106861 with states: 2, 6
-:   from 126434 to 126452 with states: 2, 6
-:   from 134940 to 134956 with states: 2, 6
+:   from  23627 to  23640 with states: 2.0, 4.0, 6.0
+:   from  50182 to  50206 with states: 2.0, 6.0
+:   from  53462 to  53483 with states: 2.0, 6.0
+:   from  62913 to  62926 with states: 2.0, 3.0
+:   from 106848 to 106861 with states: 2.0, 6.0
+:   from 126434 to 126452 with states: 2.0, 6.0
+:   from 134940 to 134956 with states: 2.0, 6.0
 
 **** Fix Errors
 To fix these issues, we have to come up with a strategy for reassigning these multiple, possibly invalid states into one state per tap. The strategy we employ works the following way:
@@ -287,9 +290,11 @@ Lastly, we write the data to an intermediary file.
 #+end_src
 
 *** A Look at the Data
+# TODO: Sections from here on onwards should not depend on the previous section having run.
+
 Before we continue to aggregate the data into feature vectors, we want to take a quick look at the data using [[https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html][histograms with matplotlib]].
 
-#+begin_src jupyter-python
+#+begin_src jupyter-python :results silent
   import matplotlib.pyplot as plt
   %matplotlib inline
 #+end_src
