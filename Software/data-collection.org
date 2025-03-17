@@ -321,7 +321,7 @@ Next, we look at the acceleration data.
 
 #+header: :file diagrams/2025-01-15_controlled-taps_histogram-acceleration.png
 #+begin_src jupyter-python :results output :exports both
-  plt.hist(data_ct[:,1:4], bins=100, density=True, stacked=True, label=header_ct[1:4])
+  plt.hist(data_ct[:,1:4], bins=100, density=True, label=header_ct[1:4], histtype='stepfilled')
   plt.legend(prop={'size': 10})
   plt.title('histogram of acceleration data')
 #+end_src
@@ -335,7 +335,7 @@ Lastly, we look at the rotation data.
 
 #+header: :file diagrams/2025-01-15_controlled-taps_histogram-rotation.png
 #+begin_src jupyter-python :results output :exports both
-  plt.hist(data_ct[:,4:], bins=100, density=True, stacked=True, label=header_ct[4:])
+  plt.hist(data_ct[:,4:], bins=100, density=True, label=header_ct[4:], histtype='stepfilled')
   plt.legend(prop={'size': 10})
   plt.title('histogram of rotation data')
 #+end_src
@@ -380,43 +380,43 @@ We want the exponential moving average to approximate the real average of the da
 
 Quick comparison of different averaging weights with =index=2=:
 - =alpha=0.5=
-  #+call: compare_ema[:file diagrams/ema_centering/compare_0-5.png](alpha=0.5)
+  #+call: compare_ema[:file diagrams/ema_centering/compare_0-5.png :exports results](alpha=0.5)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-5.png]]
   
 - =alpha=0.8=
-  #+call: compare_ema[:file diagrams/ema_centering/compare_0-8.png](alpha=0.8)
+  #+call: compare_ema[:file diagrams/ema_centering/compare_0-8.png :exports results](alpha=0.8)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-8.png]]
   
 - =alpha=0.9=
-  #+call: compare_ema[:file diagrams/ema_centering/compare_0-9.png](alpha=0.9)
+  #+call: compare_ema[:file diagrams/ema_centering/compare_0-9.png :exports results](alpha=0.9)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-9.png]]
   
 - =alpha=0.95=
-  #+call: compare_ema[:file diagrams/ema_centering/compare_0-95.png](alpha=0.95)
+  #+call: compare_ema[:file diagrams/ema_centering/compare_0-95.png :exports results](alpha=0.95)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-95.png]]
   
 - =alpha=0.99=
-  #+call: compare_ema[:file diagrams/ema_centering/compare_0-99.png](alpha=0.99)
+  #+call: compare_ema[:file diagrams/ema_centering/compare_0-99.png :exports results](alpha=0.99)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-99.png]]
   
 - =alpha=0.995=
-  #+call: compare_ema[:file diagrams/ema_centering/compare_0-995.png](alpha=0.995)
+  #+call: compare_ema[:file diagrams/ema_centering/compare_0-995.png :exports results](alpha=0.995)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-995.png]]
   
 - =alpha=1=
-  #+call: compare_ema[:file diagrams/ema_centering/compare_1.png](alpha=1)
+  #+call: compare_ema[:file diagrams/ema_centering/compare_1.png :exports results](alpha=1)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_1.png]]
@@ -449,37 +449,37 @@ Taking a closer look at all the sensor readings we get the following comparison.
 
 For the following comparison we set =alpha=0.995=, =start=10000=, and =end=13000=
 - =index=1=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_1.png](index=1)
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_1.png :exports results](index=1)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_1.png]]
   
 - =index=2=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_2.png](index=2)
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_2.png :exports results](index=2)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_2.png]]
    
 - =index=3=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_3.png](index=3)
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_3.png :exports results](index=3)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_3.png]]
    
 - =index=4=:
-   #+call: compare-center[:file diagrams/ema_centering/compare-center_4.png](index=4)
+   #+call: compare-center[:file diagrams/ema_centering/compare-center_4.png :exports results](index=4)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_4.png]]
    
 - =index=5=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_5.png](index=5)
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_5.png :exports results](index=5)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_5.png]]
    
 - =index=6=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_6.png](index=6)
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_6.png :exports results](index=6)
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_6.png]]
