@@ -15,9 +15,9 @@ void blink(){
 
 byte read_column(uint8_t const &top, uint8_t const &middle, uint8_t const &bottom){
     byte out = 0;
-    out = out | (!digitalRead(top) << 2);
-    out = out | (!digitalRead(middle) << 1);
-    out = out | (!digitalRead(bottom) << 0);
+    out = out | ((!digitalRead(top) & !digitalRead(top))<< 2);
+    out = out | ((!digitalRead(middle) & !digitalRead(middle)) << 1);
+    out = out | ((!digitalRead(bottom) & !digitalRead(bottom)) << 0);
     return out;
 }
 
