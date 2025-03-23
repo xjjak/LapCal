@@ -1,1 +1,2 @@
 * Sweep data collection setup
+This data collection setup uses the sweep keyboard itself, with wires soldered underneath to it's button pins. These wires can be plugged into the esp8266, that can read out the keyboard state and communicates via Serial with the mainboard, that streams the keyboard state and the data of a sensor to the host computer.
