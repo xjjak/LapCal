@@ -1,0 +1,8 @@
+[package]
+name = "keyboard-visualization"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.28"
+
