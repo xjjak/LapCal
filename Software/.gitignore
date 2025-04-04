@@ -1,3 +1,4 @@
 _datasets
 venv
 __pycache__
+.ob-jupyter
