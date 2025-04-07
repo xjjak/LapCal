@@ -7,9 +7,26 @@
 
 We are trying to build data gloves, that enable typing on a 34-key keyboard, without an actual keyboard, based on 6-axis IMU sensors, using machine learning.
 
+** Structure
+
+#+begin_example
+LapCal/
+├─ Software/
+│  ├─ data-collection.org
+│  ├─ *machine-learning.org*
+├─ Documentation/
+├─ Utilities/
+│  ├─ keyboard-visualization/
+├─ Hardware/
+│  ├─ Firmware/
+│  ├─ Electronics/
+#+end_example
+
+Because we are both Emacs users, we pivoted to writing our READMEs in org-mode, as well as using org-babel for literate programming, to replace jupyter notebooks. More specific documentation can be found in [[/Software/README.org][this README]].
 
 
-*Licensing:*
+
+** Licensing:
 
 This work is licensed under a
 [[http://creativecommons.org/licenses/by-nc-sa/4.0/][Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License]].
