@@ -2,7 +2,7 @@
 * LapCal
 /by Emil² - Ξ/
 
-[[./Documentation/images/lapcal-concept-handdrawn.png]][[./Documentation/images/lapcal-first-protoype-small.png]][[./Documentation/images/lapcal-protoype-pgd-small.png]]
+[[./Documentation/images/lapcal-concept-handdrawn-small.png]][[./Documentation/images/lapcal-first-protoype-small.png]][[./Documentation/images/lapcal-protoype-pgd-small.png]]
 
 
 We are trying to build data gloves, that enable typing on a 34-key keyboard, without an actual keyboard, based on 6-axis IMU sensors, using machine learning.
