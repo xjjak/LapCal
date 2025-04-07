@@ -29,8 +29,9 @@ Because we are both Emacs users, we pivoted to writing our READMEs in org-mode, 
 ** Approaches
 *** Unified Processing
 First, we tried to connect all 6 IMUs to the same main-processor, an ESP32. This delivered a mediocre read-out frequency of about 10Hz at best. Collecting data was never done properly using this approach due to trying to use timestamps to sync the sensor and some sort of keyboard state data. 
-*** Modular
+*** /Now/: Modular
 To simplify the problem, and offload computation at the same time, we are now using the constraints of the 34-keyboard, almost forcing each finger to a specific set of keys, and are trying to develop a model that only takes the data of a single finger and maps it to its respective keys. This would then also enable the use of an upgraded version of the SenseUnit (small PCBs with the IMUs on them that are attached to the fingers) with a dedicated processor on them, like an RP2040, perhaps. The mainboard could then be built around a standard keyboard MCU, that is usually used in mechanical keyboards.
+[[./Documentation/images/lapcal-modular-concept.png]]
 
 ** Licensing:
 
