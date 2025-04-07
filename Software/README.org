@@ -22,9 +22,9 @@ The package we use that provides org-babel with the ability to use jupyter-kerne
 
 To use this, in a source block like below, ~jupyter-python~ must be specified as the language to use in your config file:
 #+begin_example
-#+begin_src jupyter-python
+,#+begin_src jupyter-python
 print("Hello World!")
-#+begin_src
+,#+begin_src
 #+end_example
 This way, org-babel knows what to execute the code with, when running, or "evaluating" the source block by pressing ~C-c C-c~ with the cursor inside it.
 
