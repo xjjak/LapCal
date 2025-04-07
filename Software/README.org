@@ -24,7 +24,7 @@ To use this, in a source block like below, ~jupyter-python~ must be specified as
 #+begin_example
 ,#+begin_src jupyter-python
 print("Hello World!")
-,#+begin_src
+,#+end_src
 #+end_example
 This way, org-babel knows what to execute the code with, when running, or "evaluating" the source block by pressing ~C-c C-c~ with the cursor inside it.
 
