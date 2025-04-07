@@ -7,6 +7,8 @@ This folder contains all the custom software needed for this project. This possi
 - model training and development
 - analysis and visualizations
 
+* Structure & "Data pipeline"
+[[../Documentation/diagrams/data-pipeline.svg]]
 * Usage
 /This assumes one is familiar with Emacs, at least on a basic level./
 
@@ -30,11 +32,6 @@ Something we also added to our configs, is this hook, that automatically re-disp
 #+begin_src emacs-lisp
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images 'append)
 #+end_src
-
-* Structure & "Data pipeline"
-[[../Documentation/diagrams/data-pipeline.svg]]
-* Usage
-/Describe how to run the code in org files/
 
 * Formats
 ** Keyboard state
