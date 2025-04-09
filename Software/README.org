@@ -7,11 +7,31 @@ This folder contains all the custom software needed for this project. This possi
 - model training and development
 - analysis and visualizations
 
-
 * Structure & "Data pipeline"
 [[../Documentation/diagrams/data-pipeline.svg]]
 * Usage
-/Describe how to run the code in org files/
+/This assumes one is familiar with Emacs, at least on a basic level./
+
+Instead of using Jupyter Notebooks, one of the most popular tools for machine-learning research/development, we are using [[https://orgmode.org/worg/org-contrib/babel/intro.html][org-babel]]. This is an extension on top of [[https://orgmode.org/][org-mode]], that brings literate programming features to the so-called "source blocks", before only meant for source code formatting, meaning they can be executed on demand, as well as intertwined to create more elaborate programs that may follow the flow of writing and explanation instead of that of the programming language used. 
+The package we use that provides org-babel with the ability to use jupyter-kernels, and maintain a session is aptly named: [[https://github.com/emacs-jupyter/jupyter][emacs-jupyter]]. To make it available to babel, one has to install the package with one's preferred method and then tell babel about it like this:
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((jupyter . t)))
+#+end_src
+
+To use this, in a source block like below, ~jupyter-python~ must be specified as the language to use in your config file:
+#+begin_example
+,#+begin_src jupyter-python
+print("Hello World!")
+,#+end_src
+#+end_example
+This way, org-babel knows what to execute the code with, when running, or "evaluating" the source block by pressing ~C-c C-c~ with the cursor inside it.
+
+Something we also added to our configs, is this hook, that automatically re-displays images after a source block got evaluated, so that plots, for example, show up automatically:
+#+begin_src emacs-lisp
+(add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images 'append)
+#+end_src
 
 * Formats
 ** Keyboard state
