@@ -25,12 +25,12 @@
 #define THRESH_NO_TOUCH 30
 
 struct reading {
-    float ax;
-    float ay;
-    float az;
-    float gx;
-    float gy;
-    float gz;
+    int16_t ax;
+    int16_t ay;
+    int16_t az;
+    int16_t gx;
+    int16_t gy;
+    int16_t gz;
 };
 
 struct offsets {
@@ -45,6 +45,9 @@ struct offsets {
 #define MULT_CORE 1
 #endif 
 
+#ifndef BLE_SERIAL
+#define BLE_SERIAL 0
+#endif 
 
 #if RIGHT_HAND
     const offsets mpu_offsets[] = {

@@ -226,15 +226,15 @@ reading sense_readings(MPU6050 mpu) {
     if (RIGHT_HAND == 1) {
         output.ax = aaReal.x * -1;
         output.ay = aaReal.y * -1;
-        output.gy = ypr[1] * -1;
-        output.gz = ypr[2] * -1;
+        output.gy = (int)(ypr[1] * -1 * 100);
+        output.gz = (int)(ypr[2] * -1 * 100);
     } else {
         output.ax = aaReal.x;
         output.ay = aaReal.y;
-        output.gy = ypr[1];
-        output.gz = ypr[2];
+        output.gy = (int)(ypr[1] * 100);
+        output.gz = (int)(ypr[2] * 100);
     }
-    output.gx = ypr[0];
+    output.gx = (int)(ypr[0] * 100);
     output.az = aaReal.z;
 
     // Serial.println("Returning values...");
@@ -259,16 +259,16 @@ void get_all_readings(reading* output) {
     }
 }
 
-void format_readings(reading* input, char* output_buf) {
+void format_readings(reading* input, char* output_buf, uint64_t timestamp) {
     // char output_buf[1005];
     // output_buf[0] = (char)0;
-    sprintf(output_buf, "%d", micros());
+    sprintf(output_buf, "%lld", (timestamp + micros()));
     char return_buf[200];
     reading cur_reading;
     for (int i=0;i<SENSOR_COUNT;i++) {
         if (sensor_presence[i] != (-1)) {
             cur_reading = input[i];
-            sprintf(return_buf,":%.2f;%.2f;%.2f;%.2f;%.2f;%.2f", cur_reading.ax,cur_reading.ay,cur_reading.az,cur_reading.gx,cur_reading.gy,cur_reading.gz);
+            sprintf(return_buf,":%d;%d;%d;%d;%d;%d", cur_reading.ax,cur_reading.ay,cur_reading.az,cur_reading.gx,cur_reading.gy,cur_reading.gz);
             strcat(output_buf, return_buf);
         } else {
             strcat(output_buf, ":-");
