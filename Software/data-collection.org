@@ -24,9 +24,6 @@ Notably, the dataset types mostly vary by how we collect the [[*Labels][labels]]
   - [[#features][Features]]
   - [[#labels][Labels]]
 - [[#the-data-collection-process][The Data Collection Process]]
-  - [[#csv][CSV]]
-    - [[#loading-data][Loading Data]]
-    - [[#write-data][Write Data]]
 - [[#collecting-data][Collecting Data]]
   - [[#capturing-keypresses-directly-from-the-keyboard][Capturing Keypresses Directly from the Keyboard]]
     - [[#description][Description]]
@@ -85,52 +82,34 @@ Often, we only consider a subset of all possible key on our [[https://github.com
 For some experiments, it could also be interesting to further simplify certain models, e.g. no differentiation between different keys pressed by a key, but these are *not accounted* for in this document since they are usually quick modifications that mostly serve experimental purposes.
 
 * TODO The Data Collection Process
+/This section is currently empty. In the future some general approaches to data collection might be listed here./
 
 # TODO: python version + package management
 
-** TODO CSV
-*** Loading Data
-#+header: :noweb-ref csv-helpers
-#+begin_src jupyter-python :results silent
-  import csv
-  import numpy as np
-
-  def load_csv(path, header=True, delimiter=',', parse_fn=lambda x:x):
-      with open(path, newline='') as f:
-          reader = csv.reader(f, delimiter=delimiter)
-          if header:
-              headerline = next(reader)
-              print(f"Header line: {headerline}")
-          data = [[parse_fn(value) for value in row]
-                  for row in reader]
-      if header:
-          return (headerline, np.array(data, dtype=np.float64))
-      else:
-          return np.array(data, dtype=np.float64)
-#+end_src
-
-*** Write Data
-#+header: :noweb-ref csv-helpers
-#+begin_src jupyter-python :results silent
-  def write_csv(path, data, header=None, delimiter=','):
-      with open(path, "w", newline='') as f:
-          writer = csv.writer(f, delimiter=delimiter, lineterminator='\n')
-          if header:
-              writer.writerow(header)
-          writer.writerows(data)
-#+end_src
-    
 * Collecting Data
 This is the main part of this document. In this chapter, the [[*The Data Collection Process][general process]] for collecting data is adapted to our specific needs resulting in the actual datasets.
 
 ** TODO Capturing Keypresses Directly from the Keyboard
+:PROPERTIES:
+:header-args:jupyter-python: :async yes :session *jupyter-keyboard-direct*
+:END:
 *WARNING*: For the moment, this chapter /only describes data pertaining quick taps/, explicitly /excluding the handling of hold events/ and as such press and release events.
+
+#+begin_src jupyter-python :results silent
+  import pandas as pd
+  import numpy as np
+  from pathlib import Path
+  data_path = Path("_datasets/2025-01-15_controlled-taps")
+  
+  import matplotlib.pyplot as plt
+  %matplotlib inline
+#+end_src
 
 # TODO: raw data or dataset files?
 Dataset files:
 
-*** TODO Description
-**** Raw Data
+*** Description
+***** Raw Data
   File: [[file:_datasets/2025-01-15_controlled-taps.csv][2025-01-15_controlled-taps.csv]] (4.6Mb, 151471 lines, semicolon separated)
   
   Data was recorded by [[https://github.com/xjjak/][@xjjak]] on <2025-01-15 Wed> over a time of around 10 minutes using sensor #I [fn::#I refers to the physical label of the used sensor.] with the following calibration offsets ={-6018, 1394, 1385, 66, -86, 35}=. The recorded typing motions only contain *short taps* from the middle finger. During the recording, taps were performed in varying frequencies from different starting positions [fn::The position in which the finger rested before performing the tapping motion.] and the order in which the reachable keys were pressed also varies. To ensure consistency, the controller was reset with a brief waiting period beforehand.
@@ -144,7 +123,7 @@ Dataset files:
 
   # TODO: format?
   
-**** TODO Dataset
+***** TODO Dataset
       
 *** TODO Keypresses Directly from the Keyboard
 # TODO: links to relevant code
@@ -160,32 +139,63 @@ Before we can recitify errors, we first need to be aware of what errors are. In 
 The next step would be to find those errors in the raw data and handle them -- if appropriate.
 
 **** Find Errors
-First, we need to load the data.
+First, we need to load the data. We do this using [[https://pandas.pydata.org/][pandas]].
 
 #+begin_src jupyter-python :noweb no-export
-  # Load CSV helper functions for loading csv data file.
-  <<csv-helpers>>
-  path_ct = "_datasets/2025-01-15_controlled-taps.csv"
-  header_ct, data_ct = load_csv(path_ct, header=True, delimiter=';', parse_fn=int)
+  # Load the dataset using pandas
+  df = pd.read_csv(data_path/'raw.csv', sep=';', dtype=np.float64)
+  df.dtypes
 #+end_src
 
 #+RESULTS:
-: Header line: ['kb_state', 'ax', 'ay', 'az', 'gx', 'gy', 'gz']
+: kb_state    float64
+: ax          float64
+: ay          float64
+: az          float64
+: gx          float64
+: gy          float64
+: gz          float64
+: dtype: object
+
+Since =kb_state= -- unlike the other columns -- is not a float but an integer value, we reflect this in our data frame.
+
+#+begin_src jupyter-python :noweb no-export
+  df = df.astype({'kb_state': np.int64})
+  df.dtypes
+#+end_src
+
+#+RESULTS:
+: kb_state      int64
+: ax          float64
+: ay          float64
+: az          float64
+: gx          float64
+: gy          float64
+: gz          float64
+: dtype: object
+
+To avoid some common binary writing/reading problems at the start of the file, we discard the first data row. This is also the first intermediary result we save since that makes it easy to load and work with it using pandas.
+
+#+begin_src jupyter-python :results silent
+  df.drop(index=df.index[0], inplace=True)
+  df.reset_index(drop=True, inplace=True)
+  df.to_csv(data_path/'formatted.csv', index=False)
+#+end_src
 
 The raw data consists of a list of readings. These however do not include enough context, to detect all erroneous readings and fix the errors. Instead of the readings themselves, we consider /taps/. As a tap, we understand a maximally long sequence of consecutive readings with nonzero keyboard states.
 
 #+begin_src jupyter-python :results silent
   # Get starting (inclusive) and ending (exclusive) index of reading
   # around given reading.
-  def get_tap_around(reading_idx, data):
+  def get_tap_around(reading_idx, df):
       # check if inside tap
-      assert data[reading_idx][0] != 0
+      assert df.kb_state[reading_idx] != 0
       
       i = reading_idx
-      while i > 0 and data[i-1][0] != 0:
+      while i > 0 and df.kb_state[i-1] != 0:
           i -= 1
       a = i
-      while i < len(data) and data[i][0] != 0:
+      while i < len(df) and df.kb_state[i] != 0:
           i += 1
       b = i
       
@@ -197,9 +207,9 @@ To check the taps for errors, we first need to extract all taps from the given d
 #+begin_src jupyter-python :results silent
   idx = 0
   taps = list()
-  while idx < len(data_ct):
-      if data_ct[idx][0] != 0:
-          tap = get_tap_around(idx, data_ct)
+  while idx < len(df):
+      if df.kb_state[idx] != 0:
+          tap = get_tap_around(idx, df)
           taps.append(tap)
           idx = tap[1]
       else:
@@ -210,15 +220,15 @@ Next, we identify the erroneous ones. As outlined in the [[*A Brief Description 
 
 #+begin_src jupyter-python :results silent
   valid_keyboard_states = [0, 1, 2, 4]
-  def is_tap_valid(tap, data):
-      return len(set(map(lambda i: data[i][0], range(*tap)))) == 1 \
-          and data[tap[0]][0] in valid_keyboard_states
+  def is_tap_valid(tap, df):
+      return len(set(map(lambda i: df.kb_state[i], range(*tap)))) == 1 \
+          and df.kb_state[tap[0]] in valid_keyboard_states
 #+end_src
 
 Using the function we can filter for invalid taps.
 
 #+begin_src jupyter-python :exports both
-  taps_err = list(filter(lambda tap: not is_tap_valid(tap, data_ct), taps))
+  taps_err = list(filter(lambda tap: not is_tap_valid(tap, df), taps))
   
   # Print overview of all erroneous taps
   print("Erroneous taps:")
@@ -226,20 +236,20 @@ Using the function we can filter for invalid taps.
       start, end = tap
       states = set()
       for j in range(start, end):
-          states.add(data_ct[j][0])
+          states.add(df.kb_state[j])
       print(f"  from {tap[0]:6d} to {tap[1]:6d} with states: {', '.join(map(str, states))}")
 
 #+end_src
 
 #+RESULTS:
 : Erroneous taps:
-:   from  23627 to  23640 with states: 2.0, 4.0, 6.0
-:   from  50182 to  50206 with states: 2.0, 6.0
-:   from  53462 to  53483 with states: 2.0, 6.0
-:   from  62913 to  62926 with states: 2.0, 3.0
-:   from 106848 to 106861 with states: 2.0, 6.0
-:   from 126434 to 126452 with states: 2.0, 6.0
-:   from 134940 to 134956 with states: 2.0, 6.0
+:   from  23626 to  23639 with states: 2, 4, 6
+:   from  50181 to  50205 with states: 2, 6
+:   from  53461 to  53482 with states: 2, 6
+:   from  62912 to  62925 with states: 2, 3
+:   from 106847 to 106860 with states: 2, 6
+:   from 126433 to 126451 with states: 2, 6
+:   from 134939 to 134955 with states: 2, 6
 
 **** Fix Errors
 To fix these issues, we have to come up with a strategy for reassigning these multiple, possibly invalid states into one state per tap. The strategy we employ works the following way:
@@ -254,14 +264,14 @@ To fix these issues, we have to come up with a strategy for reassigning these mu
       start, end = tap
       contains_valid = False
       for i in range(start, end):
-          if data_ct[i][0] in valid_keyboard_states:
-              assignment = data_ct[i][0]
+          if df.kb_state[i] in valid_keyboard_states:
+              assignment = df.kb_state[i]
               contains_valid = True
               break
       if not contains_valid:
-          if data_ct[start][0] & 1:
+          if df.kb_state[start] & 1:
               assignment = 1
-          elif data_ct[start][0] & 4:
+          elif df.kb_state[start] & 4:
               assignment = 4
           else:
               assignment = 2
@@ -275,39 +285,41 @@ Now we need to apply these reassignments. When a tap is assigned to a certain ke
   for tap, assignment in reassignments.items():
       start, end = tap
       for i in range(start, end):
-          data_ct[i][0] = assignment
+          df.loc[0,"kb_state"] = assignment
 #+end_src
 
 Lastly, we write the data to an intermediary file.
 
-# FIX: hardcoded value
-# TODO: consider dataset folder
-
 #+begin_src jupyter-python :results silent
-  write_csv(
-      "_datasets/2025-01-15_controlled-taps_fixed.csv",
-      data_ct,
-      header=header_ct,
-      delimiter=';'
-  )
+  df.to_csv(data_path/'fixed.csv', index=False)
 #+end_src
 
 *** A Look at the Data
 # TODO: Sections from here on onwards should not depend on the previous section having run.
+This section works with the data generated by the [[*Rectify Errors][previous section]].
+#+begin_src jupyter-python
+  df = pd.read_csv(data_path/'fixed.csv')
+  df.dtypes
+#+end_src
+
+#+RESULTS:
+: kb_state      int64
+: ax          float64
+: ay          float64
+: az          float64
+: gx          float64
+: gy          float64
+: gz          float64
+: dtype: object
 
 Before we continue to aggregate the data into feature vectors, we want to take a quick look at the data using [[https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.hist.html][histograms with matplotlib]].
-
-#+begin_src jupyter-python :results silent
-  import matplotlib.pyplot as plt
-  %matplotlib inline
-#+end_src
 
 First, we look at the the distribution of keyboard states.
 
 #+header: :file diagrams/2025-01-15_controlled-taps_histogram-keyboard-states.png
 #+begin_src jupyter-python :results output :exports both
-  unique, counts = np.unique(data_ct[:,0], return_counts=True)
-  plt.bar(unique, counts, label=header_ct[0])
+  unique, counts = np.unique(df.kb_state, return_counts=True)
+  plt.bar(unique, counts, label="kb_state")
   plt.legend(prop={'size': 10})
   plt.title('histogram of keyboard states')
 #+end_src
@@ -321,7 +333,8 @@ Next, we look at the acceleration data.
 
 #+header: :file diagrams/2025-01-15_controlled-taps_histogram-acceleration.png
 #+begin_src jupyter-python :results output :exports both
-  plt.hist(data_ct[:,1:4], bins=100, density=True, label=header_ct[1:4], histtype='stepfilled')
+  labels = ['ax','ay','az']
+  plt.hist(df[labels], bins=100, density=True, label=['ax','ay','az'], histtype='stepfilled')
   plt.legend(prop={'size': 10})
   plt.title('histogram of acceleration data')
 #+end_src
@@ -335,7 +348,8 @@ Lastly, we look at the rotation data.
 
 #+header: :file diagrams/2025-01-15_controlled-taps_histogram-rotation.png
 #+begin_src jupyter-python :results output :exports both
-  plt.hist(data_ct[:,4:], bins=100, density=True, label=header_ct[4:], histtype='stepfilled')
+  labels = ['gx','gy','gz']
+  plt.hist(df[labels], bins=100, density=True, label=labels, histtype='stepfilled')
   plt.legend(prop={'size': 10})
   plt.title('histogram of rotation data')
 #+end_src
@@ -346,33 +360,58 @@ Lastly, we look at the rotation data.
 For the rotation data we also fortunately do not observe any significant amount of noise. All rotation axes seem to be normally distributed which we expect since any variation from typing on different keys should be observed equally frequent on both ends. Also, =gx= and =gz= are distributed slightly more broadly than =gy= which might indicate that these are the axes that the finger rotates around while typing.
 
 *** Center the Data
+This section also works with the data from the [[*Rectify Errors][first section]].
+#+begin_src jupyter-python
+  df = pd.read_csv(data_path/'fixed.csv')
+  df.dtypes
+#+end_src
+
+#+RESULTS:
+: kb_state      int64
+: ax          float64
+: ay          float64
+: az          float64
+: gx          float64
+: gy          float64
+: gz          float64
+: dtype: object
+
 As we saw in [[*A Look at the Data][A Look at the Data]], the sensor calibration is not reasonable reliable over the long term, drifts accumulate over time and calibrating the sensors every time you want to use the device is infeasible. Instead, we want to try dynamic calibration: The first approach that comes to mind is to keep some sort of average that favors more recent data, like a [[https://en.wikipedia.org/wiki/Moving_average][moving average]]. We want to try to use the [[https://en.wikipedia.org/wiki/Exponential_smoothing][exponantial moving average]].
 
+# TODO: check correctness
 #+begin_src jupyter-python :async yes :results silent
-  def center_moving_average(data, alpha=0.995):
-      moving_avg = np.zeros_like(data_ct)
-      moving_avg[0,:] = data_ct[0,:]
-      for i in range(1,len(data_ct)):
-          moving_avg[i,:] = alpha*moving_avg[i-1,:] + (1-alpha)*data_ct[i,:]
-          
-      return data_ct - moving_avg
+  %%time
+  def center_moving_average(df, alpha=0.995):
+      df = df.copy()
+      df.iloc[:,1:] = df.iloc[:,1:] - df.iloc[:,1:].ewm(alpha=1-alpha).mean()
+      return df
 
-  data_ct_centered = center_moving_average(data_ct, alpha=0.95)
+  df_center = center_moving_average(df, alpha=0.995)
 #+end_src
 
 **** A Visual Comparison to the Uncentered Data
 We want the exponential moving average to approximate the real average of the data. The closer we get to that, the more similar the distribution should look to the uncentered distribution. Essentially, the moving average should only act as a global shift as much as possible.
 
 #+name: compare_ema
-#+begin_src jupyter-python :results output :exports code :var alpha=0.95 index=2
-  data_tmp = center_moving_average(data_ct, alpha=alpha)
-  data_mean = np.mean(data_ct, axis=0)
-  plt.hist([data_tmp[:,index], (data_ct - data_mean)[:,index]], bins=50, label=[header_ct[index] + " (EMA)", header_ct[index] + " (centered)"], histtype='step', linewidth=2)
+#+begin_src jupyter-python :results output :exports code :var alpha=0.95 column="ay"
+  df_tmp = center_moving_average(df, alpha=alpha)
+  plt.hist(
+      [df_tmp.loc[:,column], (df - df.mean()).loc[:,column]],
+      bins=50,
+      label=[column + " (EMA)", column + " (centered)"],
+      histtype='step',
+      linewidth=2
+  )
   plt.legend(prop={'size': 10})
   plt.title(f'histogram of acceleration data (alpha={alpha})')
 #+end_src
 
-Quick comparison of different averaging weights with =index=2=:
+#+RESULTS: compare_ema
+[[file:./.ob-jupyter/3807dfad30228b4644ad9c1409c6909162faaa7c.png]]
+
+# TODO: does not render in github.
+
+Quick comparison of different averaging weights with =column=2=:
 - =alpha=0.5=
   #+call: compare_ema[:file diagrams/ema_centering/compare_0-5.png :exports results](alpha=0.5)
 
@@ -408,30 +447,23 @@ Quick comparison of different averaging weights with =index=2=:
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare_0-995.png]]
-  
-- =alpha=1=
-  #+call: compare_ema[:file diagrams/ema_centering/compare_1.png :exports results](alpha=1)
 
-  #+RESULTS:
-  [[file:diagrams/ema_centering/compare_1.png]]
-
-Since choosing =alpha=1= would just shift the all the data by the first value -- which is not reliable as a measure to center the data -- =alpha=0.995= gets us most similar fit. This also means that every new reading gets about as much weight as it would if we were to center a second worth of readings, since we read about src_jupyter-python{len(data_ct)//(10*60)} {{{results(=252=)}}} readings per second (assuming a recording time of 10 min).
+Since choosing =alpha=1= would just shift the all the data by the first value -- which is not reliable as a measure to center the data -- =alpha=0.995= gets us most similar fit. This also means that every new reading gets about as much weight as it would if we were to center a second worth of readings, since we read about src_jupyter-python{len(df)//(10*60)} {{{results(=252=)}}} readings per second (assuming a recording time of 10 min).
 
 Taking a closer look at all the sensor readings, we get the following comparison.
 
 #+name: compare-center
-#+header: :var alpha=0.995 start=15000 end=17000 index=2
+#+header: :var alpha=0.995 start=15000 end=17000 column="ay"
 #+begin_src jupyter-python :results output :exports code
-  center_data = center_moving_average(data_ct, alpha=alpha)
-  data_mean = np.mean(data_ct, axis=0)
+  df_tmp = center_moving_average(df, alpha=alpha)
   fig, axs = plt.subplots(3, 1, sharex=True, height_ratios=(10,10,3))
-  axs[0].plot(np.arange(start, end), data_ct[start:end,index], label=header_ct[index])
-  axs[0].plot(np.arange(start, end), (data_ct - center_data)[start:end,index], label=header_ct[index] + " (EMA)")
-  axs[0].plot([start, end], [data_mean[index], data_mean[index]], label=header_ct[index]+" (mean)")
-  axs[1].plot(np.arange(start, end), center_data[start:end,index], label=header_ct[index]+" (centered)")
+  axs[0].plot(np.arange(start, end), df.loc[start:end-1,column], label=column)
+  axs[0].plot(np.arange(start, end), (df - df_tmp).loc[start:end-1,column], label=column + " (EMA)")
+  axs[0].plot([start, end], [df.mean()[column], df.mean()[column]], label=column+" (mean)")
+  axs[1].plot(np.arange(start, end), df_tmp.loc[start:end-1,column], label=column+" (centered)")
   axs[2].step(
       np.arange(start, end),
-      np.minimum(data_ct[start:end, 0], 3),
+      np.minimum(df.kb_state[start:end], 3),
       label="taps",
   )
   axs[2].set_ylim([0, 3.5])
@@ -441,39 +473,42 @@ Taking a closer look at all the sensor readings, we get the following comparison
   axs[2].legend(prop={'size': 7}, bbox_to_anchor=(1.0, 1.0))
 #+end_src
 
-For the following comparison we set =alpha=0.995=, =start=10000=, and =end=13000=
-- =index=1=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_1.png :exports results](index=1)
+#+RESULTS: compare-center
+[[file:./.ob-jupyter/803ce476f8aee9e9a71d25308a3285cf38c60501.png]]
+
+For the following comparison we set =alpha=0.995=, =start=15000=, and =end=17000=
+- ~column="ax"~:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_1.png :exports results](column="ax")
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_1.png]]
   
-- =index=2=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_2.png :exports results](index=2)
+- ~column="ay"~:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_2.png :exports results](column="ay")
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_2.png]]
    
-- =index=3=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_3.png :exports results](index=3)
+- ~column="az"~:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_3.png :exports results](column="az")
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_3.png]]
    
-- =index=4=:
-   #+call: compare-center[:file diagrams/ema_centering/compare-center_4.png :exports results](index=4)
+- ~column="gx"~:
+   #+call: compare-center[:file diagrams/ema_centering/compare-center_4.png :exports results](column="gx")
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_4.png]]
    
-- =index=5=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_5.png :exports results](index=5)
+- ~column="gy"~:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_5.png :exports results](column="gy")
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_5.png]]
    
-- =index=6=:
-  #+call: compare-center[:file diagrams/ema_centering/compare-center_6.png :exports results](index=6)
+- ~column="gz"~:
+  #+call: compare-center[:file diagrams/ema_centering/compare-center_6.png :exports results](column="gz")
 
   #+RESULTS:
   [[file:diagrams/ema_centering/compare-center_6.png]]
@@ -486,15 +521,11 @@ We notice that the average is pretty reliable for the acceleration data, but for
 The centered data is another intermediary step we want to save.
 
 #+begin_src jupyter-python :results silent
-  write_csv(
-      "_datasets/2025-01-15_controlled-taps_fixed-centered.csv",
-      data_ct_centered,
-      header=header_ct,
-      delimiter=';'
-  )
+  df_center.to_csv(data_path/'centered.csv', index=False)
 #+end_src
 
 *** TODO Aggregate Features and Labels
+# TODO(!): update to use pandas
 **** TODO Features
 Every feature needs to encompass information about the state of the sensor as well as its immediate history. This is necessary to enable the model to detect changes in the sensor readings since two resting positions cannot be reliably differentiated even if one is in the air and the other on the table.
 
