@@ -65,7 +65,7 @@ Further, we need to convert our sequential data into features that encapsulate t
 
 ** Labels
 The labels we assign to our collected features, represent some kind of typing state. A typing state considers every physical key on a [[https://github.com/davidphilipbarr/Sweep][keyboard]] separately. But what a typing state associates to a key can differ depending on the use case:
-- in some cases, we just collect whether keys were changed from an unpressed to a pressed state, (states: =UNCHANGED=, =PRESS=, =RElEASE=)
+- in some cases, we just collect whether keys were changed from an unpressed to a pressed state, (states: =UNCHANGED=, =PRESS=, =RELEASE=)
 - in other cases, we collect the state of the keys themselves, that is, whether they are pressed or not. (states: =UNPRESSED=, =PRESSED=)
 
 It is important to note that feature labels are /not necessarily unique/ and labelling should be done with caution to avoid issues arising from feature representation like the following: When using a sliding window and not careful when labelling, a single key press can cause a model recognizing press and release events fire twice. An example for a sliding window with size 5 might look like the following for two consecutive model inputs:
@@ -95,18 +95,63 @@ This is the main part of this document. In this chapter, the [[*The Data Collect
 :END:
 *WARNING*: For the moment, this chapter /only describes data pertaining quick taps/, explicitly /excluding the handling of hold events/ and as such press and release events.
 
+Currently the following datasets are recorded and processed:
+- [[file:_datasets/2025-01-15_controlled-taps/]]
+- [[file:_datasets/2025-01-20_monkeytype/]]
+
+To LOAD a dataset execute the following code block and select the dataset you want to load.
+#+header: :var stage="centered.csv"
+#+header: :var dataset=(completing-read "Dataset: " (directory-files "_datasets/" nil directory-files-no-dot-files-regexp) nil t)
 #+begin_src jupyter-python :results silent
   import pandas as pd
   import numpy as np
-  from pathlib import Path
-  data_path = Path("_datasets/2025-01-15_controlled-taps")
-  
   import matplotlib.pyplot as plt
-  %matplotlib inline
+  from pathlib import Path
+  data_dir = Path("_datasets/")
+  data_path = data_dir / dataset
+  print(f"Loading \"{data_path / stage}\"...\n")
+  df = pd.read_csv(data_path / stage)
 #+end_src
 
-# TODO: raw data or dataset files?
-Dataset files:
+To PROCESS a new dataset, execute following code block or [[file:src/preprocess_dataset.py][the corresponding tangled script]] and input the dataset name.
+
+# #+header: :comments both/link/org
+#+header: :tangle "src/preprocess_dataset.py" :noweb no-export
+#+begin_src jupyter-python :results silent
+  #!/usr/bin/env python3
+
+  from pathlib import Path
+  import sys
+  import os
+
+  # NOTE: This program does only work on new datasets within the following dataset directory!
+
+  data_dir = Path("_datasets/")
+  assert os.path.isdir(data_dir), "Error: Cannot find dataset directory."
+
+  if len(sys.argv) == 2:
+      data_name = sys.argv[1]
+  else:
+      data_name = input("Dataset Name: ")
+
+  assert data_name, "Error: No dataset given."
+  data_path = data_dir / data_name
+  assert os.path.isdir(data_path), "Error: Cannot find given dataset"
+
+  # Import necessary libraries
+  import pandas as pd
+  import numpy as np
+  import matplotlib.pyplot as plt
+
+  print("Finding incosistencies within the dataset...")
+  <<find>>
+  print("Fixing incosistencies...")
+  <<fix>>
+  print("Centering the data using an EMA...")
+  <<center>>
+
+  print("Preprocessing successful!")
+#+end_src
 
 *** Description
 ***** Raw Data
@@ -141,7 +186,8 @@ The next step would be to find those errors in the raw data and handle them -- i
 **** Find Errors
 First, we need to load the data. We do this using [[https://pandas.pydata.org/][pandas]].
 
-#+begin_src jupyter-python :noweb no-export
+#+header: :noweb-ref find
+#+begin_src jupyter-python
   # Load the dataset using pandas
   df = pd.read_csv(data_path/'raw.csv', sep=';', dtype=np.float64)
   df.dtypes
@@ -159,7 +205,8 @@ First, we need to load the data. We do this using [[https://pandas.pydata.org/][
 
 Since =kb_state= -- unlike the other columns -- is not a float but an integer value, we reflect this in our data frame.
 
-#+begin_src jupyter-python :noweb no-export
+#+header: :noweb-ref find
+#+begin_src jupyter-python
   df = df.astype({'kb_state': np.int64})
   df.dtypes
 #+end_src
@@ -176,6 +223,7 @@ Since =kb_state= -- unlike the other columns -- is not a float but an integer va
 
 To avoid some common binary writing/reading problems at the start of the file, we discard the first data row. This is also the first intermediary result we save since that makes it easy to load and work with it using pandas.
 
+#+header: :noweb-ref find
 #+begin_src jupyter-python :results silent
   df.drop(index=df.index[0], inplace=True)
   df.reset_index(drop=True, inplace=True)
@@ -184,6 +232,7 @@ To avoid some common binary writing/reading problems at the start of the file, w
 
 The raw data consists of a list of readings. These however do not include enough context, to detect all erroneous readings and fix the errors. Instead of the readings themselves, we consider /taps/. As a tap, we understand a maximally long sequence of consecutive readings with nonzero keyboard states.
 
+#+header: :noweb-ref find
 #+begin_src jupyter-python :results silent
   # Get starting (inclusive) and ending (exclusive) index of reading
   # around given reading.
@@ -204,6 +253,7 @@ The raw data consists of a list of readings. These however do not include enough
 
 To check the taps for errors, we first need to extract all taps from the given data.
 
+#+header: :noweb-ref find
 #+begin_src jupyter-python :results silent
   idx = 0
   taps = list()
@@ -218,6 +268,7 @@ To check the taps for errors, we first need to extract all taps from the given d
 
 Next, we identify the erroneous ones. As outlined in the [[*A Brief Description of Our Data][data description]], the only valid /keyboard states/ (first column in the raw data file) are 0, 1, 2, and 4 -- i.e., 000, 001, 010, and 100 in binary. Invalid keyboard states would consequently be 3 (011), 5 (101), 6 (110), and 7 (111). Thus, all taps that contain any invalid keyboard states are erroneous. A tap is also faulty when it contains multiple valid keyboard states, since one tap should also only hit one key. We write the following function to validate taps.
 
+#+header: :noweb-ref find
 #+begin_src jupyter-python :results silent
   valid_keyboard_states = [0, 1, 2, 4]
   def is_tap_valid(tap, df):
@@ -227,6 +278,7 @@ Next, we identify the erroneous ones. As outlined in the [[*A Brief Description 
 
 Using the function we can filter for invalid taps.
 
+#+header: :noweb-ref find
 #+begin_src jupyter-python :exports both
   taps_err = list(filter(lambda tap: not is_tap_valid(tap, df), taps))
   
@@ -238,7 +290,6 @@ Using the function we can filter for invalid taps.
       for j in range(start, end):
           states.add(df.kb_state[j])
       print(f"  from {tap[0]:6d} to {tap[1]:6d} with states: {', '.join(map(str, states))}")
-
 #+end_src
 
 #+RESULTS:
@@ -257,6 +308,7 @@ To fix these issues, we have to come up with a strategy for reassigning these mu
 - When there is *only one invalid state*, we assign the state to the tap that corresponds to the non-homerow key that is part of the invalid state.
 - /Other situations are not covered for now, since we do not encounter them./
 
+#+header: :noweb-ref fix
 #+begin_src jupyter-python :results silent
   reassignments = dict()
 
@@ -281,6 +333,7 @@ To fix these issues, we have to come up with a strategy for reassigning these mu
 
 Now we need to apply these reassignments. When a tap is assigned to a certain keyboard state, applying that assignment just means to set the keyboard state of every reading in the tap to the assigned state.
 
+#+header: :noweb-ref fix
 #+begin_src jupyter-python :results silent
   for tap, assignment in reassignments.items():
       start, end = tap
@@ -290,6 +343,7 @@ Now we need to apply these reassignments. When a tap is assigned to a certain ke
 
 Lastly, we write the data to an intermediary file.
 
+#+header: :noweb-ref fix
 #+begin_src jupyter-python :results silent
   df.to_csv(data_path/'fixed.csv', index=False)
 #+end_src
@@ -378,9 +432,8 @@ This section also works with the data from the [[*Rectify Errors][first section]
 
 As we saw in [[*A Look at the Data][A Look at the Data]], the sensor calibration is not reasonable reliable over the long term, drifts accumulate over time and calibrating the sensors every time you want to use the device is infeasible. Instead, we want to try dynamic calibration: The first approach that comes to mind is to keep some sort of average that favors more recent data, like a [[https://en.wikipedia.org/wiki/Moving_average][moving average]]. We want to try to use the [[https://en.wikipedia.org/wiki/Exponential_smoothing][exponantial moving average]].
 
-# TODO: check correctness
-#+begin_src jupyter-python :async yes :results silent
-  %%time
+#+header: :noweb-ref center
+#+begin_src jupyter-python :results silent
   def center_moving_average(df, alpha=0.995):
       df = df.copy()
       df.iloc[:,1:] = df.iloc[:,1:] - df.iloc[:,1:].ewm(alpha=1-alpha).mean()
@@ -520,6 +573,7 @@ We notice that the average is pretty reliable for the acceleration data, but for
 **** Save Data
 The centered data is another intermediary step we want to save.
 
+#+header: :noweb-ref center
 #+begin_src jupyter-python :results silent
   df_center.to_csv(data_path/'centered.csv', index=False)
 #+end_src
