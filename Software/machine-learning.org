@@ -2,14 +2,18 @@
 #+property: header-args:jupyter-python :session *jupyter* :eval no-export :async yes
 #+OPTIONS: ^:nil h:6
 
+To LOAD a dataset execute the following code block and select the dataset you want to load.
+#+header: :var stage="centered.csv"
+#+header: :var dataset=(completing-read "Dataset: " (directory-files "_datasets/" nil directory-files-no-dot-files-regexp) nil t)
 #+begin_src jupyter-python :results silent
   import pandas as pd
   import numpy as np
-  from pathlib import Path
-  data_path = Path("_datasets/2025-01-20_monkeytype")
-  
   import matplotlib.pyplot as plt
-  %matplotlib inline
+  from pathlib import Path
+  data_dir = Path("_datasets/")
+  data_path = data_dir / dataset
+  print(f"Loading \"{data_path / stage}\"...\n")
+  df = pd.read_csv(data_path / stage)
 #+end_src
 
 * Contents                                                         :noexport:
