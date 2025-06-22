@@ -100,8 +100,9 @@ Currently the following datasets are recorded and processed:
 - [[file:_datasets/2025-01-20_monkeytype/]]
 
 To LOAD a dataset execute the following code block and select the dataset you want to load.
-#+header: :var stage="centered.csv"
+#+name: load
 #+header: :var dataset=(completing-read "Dataset: " (directory-files "_datasets/" nil directory-files-no-dot-files-regexp) nil t)
+#+header: :var stage=(if current-prefix-arg (completing-read "Stage: " '("raw.csv" "formatted.csv" "fixed.csv" "centered.csv") nil t) "centered.csv")
 #+begin_src jupyter-python :results silent
   import pandas as pd
   import numpy as np

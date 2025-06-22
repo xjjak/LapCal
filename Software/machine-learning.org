@@ -3,8 +3,10 @@
 #+OPTIONS: ^:nil h:6
 
 To LOAD a dataset execute the following code block and select the dataset you want to load.
-#+header: :var stage="centered.csv"
+
+#+name: load
 #+header: :var dataset=(completing-read "Dataset: " (directory-files "_datasets/" nil directory-files-no-dot-files-regexp) nil t)
+#+header: :var stage=(if current-prefix-arg (completing-read "Stage: " '("raw.csv" "formatted.csv" "fixed.csv" "centered.csv") nil t) "centered.csv")
 #+begin_src jupyter-python :results silent
   import pandas as pd
   import numpy as np
@@ -26,12 +28,19 @@ To LOAD a dataset execute the following code block and select the dataset you wa
 :CONTENTS:
 - [[#click-detection][Click Detection]]
   - [[#naive-approach][Naive Approach]]
-    - [[#labels][Labels]]
-- [[#row-detection][Row detection]]
-- [[#column-detection][Column Detection]]
+    - [[#prediction][Prediction]]
+    - [[#scoring][Scoring]]
+      - [[#naive-prediction][Naive Prediction]]
+      - [[#naive-prediction-with-filtering][Naive Prediction with Filtering]]
+        - [[#delay][Delay]]
+        - [[#threshold][Threshold]]
+        - [[#duration][Duration]]
+      - [[#naive-prediction-using-rolling-window][Naive Prediction using Rolling Window]]
+        - [[#delay][Delay]]
+        - [[#threshold][Threshold]]
+        - [[#window-size][Window Size]]
 :END:
 
-* Click Detection
 * TODO Click Detection
 Before we can try to assign every tap a key, we need to first detect such taps. We will try to do so in several ways
 
@@ -111,6 +120,8 @@ It seems like the rise starts a lot earlier potentially. So maybe n=20 is actual
 
 *** Prediction
 The first prediction algorithm is very simple and deterministic and works offline. It just identifies all readings with a y-acceleration greater or equal to some threshold.
+
+#+name: naive-simple
 #+begin_src jupyter-python :results silent
   def predict_naive(df, threshold=None):
       assert threshold != None
@@ -120,13 +131,14 @@ The first prediction algorithm is very simple and deterministic and works offlin
 #+end_src
 
 The second prediction algorithm is very much like the first one but it also requires a down-spike in y-acceleration after an up-spike.
+
+#+name: naive-filter
 #+begin_src jupyter-python :results silent
-  def predict_naive2(df, threshold=None, duration=None):
+  def predict_naive(df, threshold=None, duration=None):
       assert threshold != None
       assert duration != None
 
-      over = df.ay >= threshold
-      candidates = over & ~over.shift(1, fill_value=False)
+      candidates = predict_naive(df, threshold=threshold)
 
       valid = df.ay <= -threshold/2
       for i in range(duration):
@@ -135,10 +147,24 @@ The second prediction algorithm is very much like the first one but it also requ
       return candidates & valid
 #+end_src
 
+The last prediction algorithm explores the ideas from the other two algorithms further by using a rolling window that considers the difference between maximum and minimum value of the y-acceleration.
+#+name: naive-window
+#+begin_src jupyter-python :eval no
+  def predict_naive(df, threshold=None, window_size=None):
+      assert threshold != None
+      assert window_size != None
+
+      diff = df.ay.rolling(window_size).max() - df.ay.rolling(window_size).min()
+      over = diff.shift(-window_size+1) >= threshold
+      
+      return over & ~over.shift(1, fill_value=False)
+#+end_src
+
 *** TODO Scoring
 #+name: predict-visual
 #+header: :var start=15000 end=17000 threshold=2000
-#+begin_src jupyter-python :results output
+#+begin_src jupyter-python :results output :noweb no-export
+  <<naive-simple>>
   fig, axs = plt.subplots(2,1, sharex=True)
 
   fig.suptitle("Real taps and naive predictions")
@@ -166,6 +192,7 @@ The second prediction algorithm is very much like the first one but it also requ
 
 To evaluate the performance of the naive classifier, we need to come up with a way to determistically measure the closeness of prediction and reality.
 
+#+name: naive-scoring
 #+begin_src jupyter-python :results silent
   def score_naive(df, prediction, delay=50):
       prediction = prediction
@@ -263,15 +290,16 @@ For visualization purposes, we also define a function for producing a plot of th
 #+RESULTS:
 [[file:./.ob-jupyter/15fc0d37a0f09a4b79527dfc625579928c174ada.png]]
 
-**** Naive Prediction V2
-#+name: predict2-visual
+**** Naive Prediction with Filtering
+#+name: predict--visual
 #+header: :var start=15000 end=17000 threshold=2000 duration=20
-#+begin_src jupyter-python :results output
+#+begin_src jupyter-python :results output :noweb no-export
+  <<naive-filter>>
   fig, axs = plt.subplots(2,1, sharex=True)
 
   fig.suptitle("Real taps and naive predictions")
 
-  pred = predict_naive2(df, threshold=threshold, duration=duration)
+  pred = predict_naive(df, threshold=threshold, duration=duration)
   axs[0].step(np.arange(start, end), pred.iloc[start:end], label='prediction')
   axs[0].legend(prop={'size': 10}, loc='upper right')
 
@@ -295,7 +323,8 @@ Interestingly, you can loose some predicted taps when decreasing the threshold b
 Defaults:
 # FIX(!): This is a very unstable workaround.
 #+name: defaults
-#+begin_src jupyter-python :eval no
+#+begin_src jupyter-python :eval no :noweb no-export
+  <<naive-filter>>
   threshold=1700
   delay=30
   duration=15
@@ -304,7 +333,7 @@ Defaults:
 #+begin_src jupyter-python
   score_naive(
       df,
-      predict_naive2(df, threshold=threshold, duration=duration),
+      predict_naive(df, threshold=threshold, duration=duration),
       delay=delay
   )
 #+end_src
@@ -319,7 +348,7 @@ Defaults:
   <<defaults>>
   fnplot(
       np.arange(100),
-      lambda delay: score_naive(df, predict_naive2(df, threshold=threshold, duration=duration), delay=delay)
+      lambda delay: score_naive(df, predict_naive(df, threshold=threshold, duration=duration), delay=delay)
   )
 #+end_src
 
@@ -331,7 +360,7 @@ Defaults:
   <<defaults>>
   fnplot(
       np.linspace(500, 3000, 100),
-      lambda threshold: score_naive(df, predict_naive2(df, threshold=threshold, duration=duration), delay=delay)
+      lambda threshold: score_naive(df, predict_naive(df, threshold=threshold, duration=duration), delay=delay)
   )
 #+end_src
 
@@ -343,7 +372,7 @@ Defaults:
   <<defaults>>
   fnplot(
       np.arange(100),
-      lambda duration: score_naive(df, predict_naive2(df, threshold=threshold, duration=duration), delay=delay)
+      lambda duration: score_naive(df, predict_naive(df, threshold=threshold, duration=duration), delay=delay)
   )
 #+end_src
 
@@ -352,3 +381,57 @@ Defaults:
 
 
 # TODO: make plot matrix?
+
+**** Naive Prediction using Rolling Window
+
+# FIX: workaround
+#+begin_src jupyter-python :noweb no-export :results silent
+  <<naive-window>>
+  delay=30
+  threshold=4300
+  window_size=10
+#+end_src
+
+#+begin_src jupyter-python
+  score_naive(
+      df,
+      predict_naive(df, threshold=threshold, window_size=window_size),
+      delay=delay
+  )
+#+end_src
+
+#+RESULTS:
+| precision | : | 0.4633093525179856 | recall | : | 0.49614791987673346 | f1 | : | 0.4791666666666667 |
+
+***** Delay
+#+begin_src jupyter-python :noweb no-export :results output
+  fnplot(
+      np.arange(100),
+      lambda delay: score_naive(df, predict_naive(df, threshold=threshold, window_size=window_size), delay=delay)
+  )
+#+end_src
+
+#+RESULTS:
+[[file:./.ob-jupyter/d7c5c6881bd1ff3f20447ac99730a88f47bb1392.png]]
+
+***** Threshold
+#+begin_src jupyter-python :noweb no-export :results output
+  fnplot(
+      np.linspace(500, 6000, 200),
+      lambda threshold: score_naive(df, predict_naive(df, threshold=threshold, window_size=window_size), delay=delay)
+  )
+#+end_src
+
+#+RESULTS:
+[[file:./.ob-jupyter/0f00c135506358988957932f8c1e21e750791c15.png]]
+
+***** Window Size
+#+begin_src jupyter-python :noweb no-export :results output
+  fnplot(
+      np.arange(40),
+      lambda window_size: score_naive(df, predict_naive(df, threshold=threshold, window_size=window_size), delay=delay)
+  )
+#+end_src
+
+#+RESULTS:
+[[file:./.ob-jupyter/947794c6c6e6891cbf41c624c58f64935af5c3e4.png]]
