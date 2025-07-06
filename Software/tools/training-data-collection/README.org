@@ -26,4 +26,27 @@
 
   Description: Monkeytype, with punctuation, so also Captial letters, english 10k, collection started shortly after controller power-on.
   (Occasional adjustment of keyboard position/twist, shfited around a bit during typing)
+
+- ~2025-07-06_monkeytype-negative-set.csv~:
+  /4MB, 132377 lines/
+  /recorded by xjjak, right hand middle finger using Sensor #I, sweep-esp setup, middle finger column/
+  calibrated offsets: ~{-6018, 1394, 1385, 66, -86, 35}~ , keys: ~i k ,~ .
+
+  Description: Monkeytype, simple & short words, middle finger letters (~i k ,~) explicitly excluded, no typing with mimddle finger to collect "negative" data, while other fingers are moving, collection started shortly after controller power-on.
+  (Occasional adjustment of keyboard position/twist, shfited around a bit during typing)
   
+- ~2025-07-06_monkeytype-negative-set2.csv~:
+  /2.3MB, 77550 lines/
+  /recorded by xjjak, right hand middle finger using Sensor #I, sweep-esp setup, middle finger column/
+  calibrated offsets: ~{-6018, 1394, 1385, 66, -86, 35}~ , keys: ~i k ,~ .
+
+  Description: Monkeytype, simple & short words, middle finger letters (~i k ,~) explicitly excluded, no typing with mimddle finger to collect "negative" data, while other fingers are moving, collection started shortly after controller power-on.
+  (Occasional adjustment of keyboard position/twist, shfited around a bit during typing)
+
+- ~2025-07-06_monkeytype.csv~:
+  /4.2MB, 141060 lines/
+  /recorded by xjjak, right hand middle finger using Sensor #I, sweep-esp setup, middle finger column/
+  calibrated offsets: ~{-6018, 1394, 1385, 66, -86, 35}~ , keys: ~i k ,~ and hold to shift on ~k~
+
+  Description: Monkeytype, with punctuation, so also Captial letters, english 10k, collection started shortly after controller power-on.
+  (Occasional adjustment of keyboard position/twist, shfited around a bit during typing)
