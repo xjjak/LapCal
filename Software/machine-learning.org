@@ -5,14 +5,14 @@
 To LOAD a dataset execute the following code block and select the dataset you want to load.
 
 #+name: load
-#+header: :var dataset=(completing-read "Dataset: " (directory-files "_datasets/" nil directory-files-no-dot-files-regexp) nil t)
+#+header: :var dataset=(completing-read "Dataset: " (directory-files "_datasets/raw/" nil directory-files-no-dot-files-regexp) nil t)
 #+header: :var stage=(if current-prefix-arg (completing-read "Stage: " '("raw.csv" "formatted.csv" "fixed.csv" "centered.csv") nil t) "centered.csv")
 #+begin_src jupyter-python :results silent
   import pandas as pd
   import numpy as np
   import matplotlib.pyplot as plt
   from pathlib import Path
-  data_dir = Path("_datasets/")
+  data_dir = Path("_datasets/raw/")
   data_path = data_dir / dataset
   print(f"Loading \"{data_path / stage}\"...\n")
   df = pd.read_csv(data_path / stage)
@@ -44,7 +44,7 @@ To LOAD a dataset execute the following code block and select the dataset you wa
 * TODO Click Detection
 Before we can try to assign every tap a key, we need to first detect such taps. We will try to do so in several ways
 
-** TODO Naive Approach
+** Naive Approach
 The first approach we will try, will just use the acceleration data and check whether some threshold is exceeded.
 
 #+begin_src jupyter-python
@@ -160,7 +160,7 @@ The last prediction algorithm explores the ideas from the other two algorithms f
       return over & ~over.shift(1, fill_value=False)
 #+end_src
 
-*** TODO Scoring
+*** Scoring
 #+name: predict-visual
 #+header: :var start=15000 end=17000 threshold=2000
 #+begin_src jupyter-python :results output :noweb no-export
@@ -182,6 +182,7 @@ The last prediction algorithm explores the ideas from the other two algorithms f
 
 #+call: predict-visual(threshold=2000)
 #+RESULTS:
+[[file:./.ob-jupyter/7e6563370e15c367eeec33dc78e6f7b02140827f.png]]
 #+call: predict-visual(threshold=1500)
 #+RESULTS:
 #+call: predict-visual(threshold=1000)
@@ -435,3 +436,12 @@ Defaults:
 
 #+RESULTS:
 [[file:./.ob-jupyter/947794c6c6e6891cbf41c624c58f64935af5c3e4.png]]
+
+
+# TODO: make plot matrix?
+
+
+
+*** Conclusion
+While it would be nice to be able to employ such simple ideas to detect clicks, the accuracy we achieve is just not satisfactory. This is of course not very surprising consider we only use a single value from a single data point.
+

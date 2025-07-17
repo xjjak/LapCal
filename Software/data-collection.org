@@ -96,19 +96,19 @@ This is the main part of this document. In this chapter, the [[*The Data Collect
 *WARNING*: For the moment, this chapter /only describes data pertaining quick taps/, explicitly /excluding the handling of hold events/ and as such press and release events.
 
 Currently the following datasets are recorded and processed:
-- [[file:_datasets/2025-01-15_controlled-taps/]]
-- [[file:_datasets/2025-01-20_monkeytype/]]
+- [[file:_datasets/raw/2025-01-15_controlled-taps/]]
+- [[file:_datasets/raw/2025-01-20_monkeytype/]]
 
 To LOAD a dataset execute the following code block and select the dataset you want to load.
 #+name: load
-#+header: :var dataset=(completing-read "Dataset: " (directory-files "_datasets/" nil directory-files-no-dot-files-regexp) nil t)
+#+header: :var dataset=(completing-read "Dataset: " (directory-files "_datasets/raw/" nil directory-files-no-dot-files-regexp) nil t)
 #+header: :var stage=(if current-prefix-arg (completing-read "Stage: " '("raw.csv" "formatted.csv" "fixed.csv" "centered.csv") nil t) "centered.csv")
 #+begin_src jupyter-python :results silent
   import pandas as pd
   import numpy as np
   import matplotlib.pyplot as plt
   from pathlib import Path
-  data_dir = Path("_datasets/")
+  data_dir = Path("_datasets/raw/")
   data_path = data_dir / dataset
   print(f"Loading \"{data_path / stage}\"...\n")
   df = pd.read_csv(data_path / stage)
@@ -117,27 +117,20 @@ To LOAD a dataset execute the following code block and select the dataset you wa
 To PROCESS a new dataset, execute following code block or [[file:src/preprocess_dataset.py][the corresponding tangled script]] and input the dataset name.
 
 # #+header: :comments both/link/org
-#+header: :tangle "src/preprocess_dataset.py" :noweb no-export
-#+begin_src jupyter-python :results silent
+#+header: :var data_name=(completing-read "Dataset: " (directory-files "_datasets/raw/" nil directory-files-no-dot-files-regexp) nil t)
+#+begin_src jupyter-python :results silent :noweb-ref process :noweb no-export
   #!/usr/bin/env python3
 
   from pathlib import Path
-  import sys
   import os
 
   # NOTE: This program does only work on new datasets within the following dataset directory!
 
-  data_dir = Path("_datasets/")
+  data_dir = Path("_datasets/raw/")
   assert os.path.isdir(data_dir), "Error: Cannot find dataset directory."
-
-  if len(sys.argv) == 2:
-      data_name = sys.argv[1]
-  else:
-      data_name = input("Dataset Name: ")
-
   assert data_name, "Error: No dataset given."
   data_path = data_dir / data_name
-  assert os.path.isdir(data_path), "Error: Cannot find given dataset"
+  assert os.path.isdir(data_path), f"Error: Cannot find given dataset \"{data_path}\"" 
 
   # Import necessary libraries
   import pandas as pd
@@ -152,6 +145,20 @@ To PROCESS a new dataset, execute following code block or [[file:src/preprocess_
   <<center>>
 
   print("Preprocessing successful!")
+#+end_src
+
+The following code block is tangled to the script mentioned above, it takes the dataset name via stdin or as an argument.
+
+#+header: :tangle "preprocess_dataset.py" :noweb no-export
+#+begin_src jupyter-python :eval no :noweb no-export
+  import sys
+
+  if len(sys.argv) == 2:
+      data_name = sys.argv[1]
+  else:
+      data_name = input("Dataset Name: ")
+
+  <<process>>
 #+end_src
 
 *** Description
